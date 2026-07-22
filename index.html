@@ -1,0 +1,1354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ONEST Trust Ledger - Verification Workspace</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,600;1,500&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg-base: #0b0f19;
+      --bg-panel: #131b2e; /* Muted enterprise navy/slate */
+      --bg-workspace: #0f172a;
+      --border-thin: #1e293b; /* Muted slate border */
+      --border-active: #4f46e5; /* Indigo-600 */
+      --color-cyan: #e2e8f0; /* Off-white label text */
+      --color-purple: #818cf8; /* Light Indigo */
+      --color-primary: #4f46e5; /* Solid Indigo */
+      --color-primary-hover: #4338ca;
+      --color-emerald: #10b981;
+      --color-rose: #f43f5e;
+      --text-main: #f8fafc;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --font-mono: 'Fira Code', monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg-base);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    h1, h2, h3, h4, .headline {
+      font-family: 'Outfit', sans-serif;
+    }
+
+    /* -----------------------------------------------------------
+      TOP GLASS NAVBAR
+    ----------------------------------------------------------- */
+    .navbar {
+      height: 70px;
+      background: rgba(13, 22, 41, 0.8);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-thin);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 40px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-shield {
+      width: 32px;
+      height: 32px;
+      background: var(--color-primary);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 10px rgba(79, 70, 229, 0.2);
+    }
+
+    .brand-shield svg {
+      stroke: white;
+    }
+
+    .brand-title {
+      font-weight: 700;
+      font-size: 1.1rem;
+      letter-spacing: -0.5px;
+      color: var(--text-main);
+    }
+
+    .nav-links {
+      display: flex;
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid var(--border-thin);
+      border-radius: 20px;
+      padding: 3px;
+      gap: 4px;
+    }
+
+    .nav-link {
+      background: transparent;
+      border: none;
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 6px 16px;
+      border-radius: 16px;
+      transition: all 0.2s;
+    }
+
+    .nav-link:hover {
+      color: var(--text-main);
+    }
+
+    .nav-link.active {
+      color: #ffffff;
+      background: #1e293b;
+    }
+
+    .lms-indicator {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      background: rgba(249, 115, 22, 0.05);
+      border: 1px solid rgba(249, 115, 22, 0.15);
+      border-radius: 20px;
+      color: var(--color-orange);
+      text-decoration: none;
+      font-size: 0.8rem;
+      font-weight: 700;
+      transition: all 0.25s;
+    }
+
+    .lms-indicator:hover {
+      background: rgba(249, 115, 22, 0.1);
+    }
+
+    .lms-indicator svg {
+      stroke: var(--color-orange);
+    }
+
+    /* -----------------------------------------------------------
+      THREE-COLUMN WORKSPACE GRID
+    ----------------------------------------------------------- */
+    .workspace {
+      display: grid;
+      grid-template-columns: 340px 1fr 340px;
+      gap: 24px;
+      padding: 24px;
+      flex: 1;
+      height: calc(100vh - 70px);
+      overflow: hidden;
+    }
+
+    @media (max-width: 1200px) {
+      .workspace {
+        grid-template-columns: 320px 1fr;
+        height: auto;
+        overflow: visible;
+      }
+      .blueprint-column {
+        grid-column: span 2;
+        height: auto !important;
+      }
+    }
+
+    @media (max-width: 900px) {
+      .workspace {
+        grid-template-columns: 1fr;
+      }
+      .blueprint-column, .control-column {
+        grid-column: span 1;
+      }
+    }
+
+    .column {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      height: 100%;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .column::-webkit-scrollbar {
+      width: 4px;
+    }
+    .column::-webkit-scrollbar-thumb {
+      background: rgba(255,255,255,0.06);
+      border-radius: 2px;
+    }
+
+    /* Cards / Workspace Panels */
+    .panel-card {
+      background: var(--bg-panel);
+      border: 1px solid var(--border-thin);
+      border-radius: 12px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    .panel-title {
+      font-size: 0.9rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      color: var(--text-main);
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .panel-title svg {
+      color: var(--text-secondary);
+    }
+
+    /* -----------------------------------------------------------
+      COLUMN 1: CONTROLLER DECK
+    ----------------------------------------------------------- */
+    .form-group {
+      margin-bottom: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-group label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    input, select {
+      background: #090d16;
+      border: 1px solid var(--border-thin);
+      padding: 12px 14px;
+      border-radius: 8px;
+      color: var(--text-main);
+      font-family: inherit;
+      font-size: 0.9rem;
+      transition: all 0.2s;
+    }
+
+    input:focus, select:focus {
+      outline: none;
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.15);
+    }
+
+    .btn-action {
+      background: var(--color-primary);
+      color: #ffffff;
+      border: none;
+      padding: 14px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn-action svg {
+      stroke: #ffffff;
+    }
+
+    .btn-action:hover {
+      background: var(--color-primary-hover);
+      box-shadow: 0 4px 12px rgba(79, 70, 229, 0.15);
+    }
+
+    .btn-action:disabled {
+      background: #1e2433;
+      color: var(--text-muted);
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    .btn-action:disabled svg {
+      stroke: var(--text-muted);
+    }
+
+    /* Revocation Box */
+    .revocation-deck {
+      margin-top: 10px;
+    }
+
+    .revocation-status {
+      margin-top: 15px;
+      padding: 12px;
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid var(--border-thin);
+      border-radius: 8px;
+      font-family: var(--font-mono);
+      color: #cbd5e1;
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .badge-status {
+      padding: 4px 8px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      border-radius: 4px;
+      text-transform: uppercase;
+    }
+
+    .badge-status.active {
+      background: rgba(16, 185, 129, 0.1);
+      color: var(--color-emerald);
+    }
+
+    .badge-status.revoked {
+      background: rgba(244, 63, 94, 0.1);
+      color: var(--color-rose);
+    }
+
+    /* -----------------------------------------------------------
+      COLUMN 2: CENTRAL CANVAS (PREVIEW)
+    ----------------------------------------------------------- */
+    .canvas-column {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      position: relative;
+    }
+
+    .canvas-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .canvas-selector {
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid var(--border-thin);
+      border-radius: 20px;
+      padding: 3px;
+      display: flex;
+    }
+
+    .canvas-tab {
+      background: transparent;
+      border: none;
+      color: var(--text-secondary);
+      padding: 6px 14px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      border-radius: 16px;
+      transition: all 0.2s;
+    }
+
+    .canvas-tab.active {
+      background: #1e293b;
+      color: #ffffff;
+    }
+
+    .canvas-box {
+      flex: 1;
+      min-height: 400px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: #0b0f19;
+      /* Subtle dark dot-grid pattern */
+      background-image: radial-gradient(#1e293b 1.5px, transparent 1.5px);
+      background-size: 16px 16px;
+      border: 1px solid var(--border-thin);
+      border-radius: 12px;
+      padding: 30px;
+    }
+
+    /* Blueprint placeholder state */
+    .blueprint-overlay {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 40px;
+    }
+
+    .blueprint-logo {
+      width: 56px;
+      height: 56px;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+      border: 1px solid var(--border-thin);
+      padding: 14px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.01);
+    }
+
+    .blueprint-logo svg {
+      stroke: var(--text-secondary);
+    }
+
+    /* Premium Certificate Card */
+    .cert-frame {
+      width: 100%;
+      max-width: 600px;
+      background: #fbfbf9; /* Warm paper cream-white */
+      color: #1c1917; /* Ink */
+      border: 12px double #e7e5e4;
+      padding: 36px;
+      position: relative;
+      /* Heavy drop shadow floating effect */
+      box-shadow: 0 35px 60px -15px rgba(0, 0, 0, 0.7);
+      aspect-ratio: 1.414 / 1;
+      display: none;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      text-align: center;
+      border-radius: 2px;
+      transition: all 0.3s ease;
+    }
+
+    .cert-corner {
+      position: absolute;
+      width: 30px;
+      height: 30px;
+      border: 2px solid #a8a29e;
+    }
+    .cert-tl { top: 8px; left: 8px; border-right: none; border-bottom: none; }
+    .cert-tr { top: 8px; right: 8px; border-left: none; border-bottom: none; }
+    .cert-bl { bottom: 8px; left: 8px; border-right: none; border-top: none; }
+    .cert-br { bottom: 8px; right: 8px; border-left: none; border-top: none; }
+
+    .cert-header {
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      font-size: 0.75rem;
+      font-weight: 800;
+      color: #78716c;
+    }
+
+    .cert-title {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 2.1rem;
+      font-weight: 500;
+      color: #292524;
+      margin: 12px 0 4px 0;
+    }
+
+    .cert-presentation {
+      font-size: 0.8rem;
+      color: #78716c;
+      font-style: italic;
+    }
+
+    .cert-name {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.9rem;
+      font-weight: 800;
+      color: #1c1917;
+      border-bottom: 1px solid #d6d3d1;
+      padding-bottom: 4px;
+      margin: 8px 0;
+      width: 80%;
+    }
+
+    .cert-details {
+      font-size: 0.9rem;
+      color: #44403c;
+      line-height: 1.5;
+      width: 85%;
+    }
+
+    .cert-course {
+      font-weight: 800;
+      color: #1c1917;
+    }
+
+    .cert-footer {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      padding: 0 10px;
+    }
+
+    .cert-sign {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-size: 0.7rem;
+      color: #78716c;
+    }
+
+    .cert-sign-line {
+      width: 100px;
+      border-top: 1px solid #78716c;
+      margin-bottom: 4px;
+    }
+
+    .cert-seal {
+      width: 50px;
+      height: 50px;
+      background: var(--color-emerald);
+      border-radius: 50%;
+      color: white;
+      font-size: 0.55rem;
+      font-weight: 800;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      border: 3px dashed white;
+      box-shadow: 0 0 0 3px var(--color-emerald);
+      transform: rotate(-8deg);
+      line-height: 1.1;
+    }
+
+    .cert-uuid {
+      font-family: var(--font-mono);
+      font-size: 0.6rem;
+      color: #a8a29e;
+      margin-top: 4px;
+    }
+
+    /* Code inspector box */
+    .code-box {
+      width: 100%;
+      height: 100%;
+      background: #04060d;
+      border: 1px solid var(--border-thin);
+      border-radius: 12px;
+      padding: 20px;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      color: #38bdf8;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      display: none;
+    }
+
+    /* -----------------------------------------------------------
+      BOTTOM PANEL: DOCK / SCANNER
+    ----------------------------------------------------------- */
+    .scanner-panel {
+      margin-top: auto;
+    }
+
+    .scanner-target {
+      border: 1.5px dashed var(--border-thin);
+      background: rgba(255,255,255,0.01);
+      border-radius: 8px;
+      padding: 24px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+
+    .scanner-target:hover, .scanner-target.dragover {
+      border-color: var(--color-primary);
+      background: rgba(79, 70, 229, 0.02);
+    }
+
+    /* Glowing Laser Line Animation */
+    .scanner-laser {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--color-primary), transparent);
+      box-shadow: 0 0 8px var(--color-primary);
+      display: none;
+      animation: scanLaser 2s linear infinite;
+    }
+
+    @keyframes scanLaser {
+      0% { top: 0%; }
+      50% { top: 100%; }
+      100% { top: 0%; }
+    }
+
+    .verdict-banner {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 16px;
+      border-radius: 8px;
+      margin-top: 15px;
+      border: 1px solid transparent;
+      display: none;
+    }
+
+    .verdict-banner.success {
+      background: rgba(16, 185, 129, 0.05);
+      border-color: rgba(16, 185, 129, 0.15);
+      color: var(--color-emerald);
+    }
+
+    .verdict-banner.error {
+      background: rgba(244, 63, 94, 0.05);
+      border-color: rgba(244, 63, 94, 0.15);
+      color: var(--color-rose);
+    }
+
+    /* -----------------------------------------------------------
+      COLUMN 3: TRUST BLUEPRINT
+    ----------------------------------------------------------- */
+    .blueprint-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .blueprint-step {
+      border: 1px solid var(--border-thin);
+      border-radius: 8px;
+      padding: 14px;
+      background: rgba(255,255,255,0.01);
+      cursor: pointer;
+      transition: all 0.25s;
+    }
+
+    .blueprint-step:hover, .blueprint-step.active {
+      border-color: var(--border-active);
+      background: rgba(79, 70, 229, 0.03);
+    }
+
+    .step-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+
+    .step-number {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      border: 1px solid var(--border-thin);
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    .step-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+    }
+
+    .step-desc {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      line-height: 1.4;
+    }
+
+    /* Comparative display */
+    .comparison-box {
+      margin-top: 10px;
+      border-top: 1px solid var(--border-thin);
+      padding-top: 14px;
+    }
+
+    .comparison-title {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--color-purple);
+      margin-bottom: 6px;
+    }
+
+    .comparison-desc {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      line-height: 1.45;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOP GLASS BAR -->
+  <header class="navbar">
+    <div class="nav-brand">
+      <div class="brand-shield">
+        <!-- SVG Shield Logo -->
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      </div>
+      <div class="brand-title">ONEST Trust Ledger</div>
+    </div>
+    
+    <nav class="nav-links">
+      <button class="nav-link active" onclick="switchNav('vault')">Workspace Console</button>
+      <button class="nav-link" onclick="switchNav('about')">Technical Specification</button>
+    </nav>
+
+    <a href="http://localhost:4000" target="_blank" class="lms-indicator">
+      <!-- SVG Graduation Cap -->
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c0 2 2 3 6 3s6-1 6-3v-5"/></svg>
+      Moodle Gradebook
+    </a>
+  </header>
+
+  <!-- 3-COLUMN INTEGRATED WORKSPACE -->
+  <div id="section-vault" class="workspace">
+    
+    <!-- COLUMN 1: CONTROL DECK -->
+    <div class="column control-column">
+      
+      <!-- Panel 1: Issuance Controller -->
+      <div class="panel-card">
+        <div class="panel-title">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+          Credential Synthesizer
+        </div>
+        
+        <div class="form-group">
+          <label for="input-user">Moodle Student ID</label>
+          <input type="number" id="input-user" value="1" min="1" placeholder="e.g. 1">
+        </div>
+
+        <div class="form-group">
+          <label for="input-course">Moodle Course ID</label>
+          <input type="number" id="input-course" value="102" min="1" placeholder="e.g. 102">
+        </div>
+
+        <button class="btn-action" id="btn-sync" onclick="triggerSync()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+          Sync & Issue VC
+        </button>
+      </div>
+
+      <!-- Panel 1.5: Certificate Retriever -->
+      <div class="panel-card" style="margin-top: 10px;">
+        <div class="panel-title">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          Certificate Retriever
+        </div>
+        
+        <div class="form-group">
+          <label for="input-search-uuid">Credential UUID</label>
+          <input type="text" id="input-search-uuid" placeholder="Paste credential UUID to retrieve">
+        </div>
+
+        <button class="btn-action" id="btn-retrieve" onclick="retrieveCredential()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          Fetch & Display
+        </button>
+      </div>
+
+      <!-- Panel 2: Live Revocation Controller -->
+      <div class="panel-card revocation-deck">
+        <div class="panel-title">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+          Revocation Registry
+        </div>
+        <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 12px; line-height: 1.4;">
+          Revoke or restore credential status in the database to test dynamic checking.
+        </p>
+
+        <div class="form-group">
+          <label for="input-revoke-uuid">Credential UUID</label>
+          <input type="text" id="input-revoke-uuid" placeholder="Paste credential UUID">
+        </div>
+
+        <div style="display: flex; gap: 10px;">
+          <button class="btn-action" style="flex: 1; padding: 10px; font-size: 0.8rem;" onclick="checkStatus()">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            Search Status
+          </button>
+          <button class="btn-action" id="btn-toggle-revoke" style="flex: 1; padding: 10px; font-size: 0.8rem; display: none;" onclick="toggleRevoke()">
+            Toggle Status
+          </button>
+        </div>
+
+        <!-- Recessed Dark Capsule Container with Inline Copy Button -->
+        <div class="revocation-status" id="revocation-status-box">
+          <div style="display: flex; align-items: center; gap: 8px; overflow: hidden; width: calc(100% - 80px);">
+            <span style="font-size: 0.8rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" id="revocation-display-uuid">f81d4fae...</span>
+            <button onclick="copyUuidText()" style="background: transparent; border: none; color: var(--text-muted); cursor: pointer; display: flex; align-items: center; padding: 2px;" title="Copy UUID">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>
+          </div>
+          <span class="badge-status active" id="revocation-display-status">ACTIVE</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- COLUMN 2: CENTRAL WORKSPACE (LIVE CANVAS) -->
+    <div class="column canvas-column">
+      <div class="canvas-header">
+        <div class="headline" style="font-size: 0.95rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-secondary);">Live Artboard</div>
+        <div class="canvas-selector">
+          <button class="canvas-tab active" id="tab-visual" onclick="toggleCanvas('visual')">Visual Badge</button>
+          <button class="canvas-tab" id="tab-raw" onclick="toggleCanvas('raw')">Signed JWS String</button>
+        </div>
+      </div>
+
+      <div class="canvas-box">
+        <!-- Blueprint default view -->
+        <div class="blueprint-overlay" id="blueprint-view">
+          <div class="blueprint-logo">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <h4 style="font-size: 1.05rem; font-weight: 700; margin-bottom: 6px; color: var(--text-main);">Workspace Idle</h4>
+          <p style="font-size: 0.85rem; color: var(--text-secondary); max-width: 320px;">
+            Trigger a sync evaluation in the left deck, or drop an issued file into the scanner below to display details.
+          </p>
+        </div>
+
+        <!-- Visual Certificate Card representation -->
+        <div class="cert-frame" id="visual-cert-view">
+          <div class="cert-corner cert-tl"></div>
+          <div class="cert-corner cert-tr"></div>
+          <div class="cert-corner cert-bl"></div>
+          <div class="cert-corner cert-br"></div>
+
+          <div class="cert-header">ONEST Certification Protocol</div>
+          <div>
+            <h3 class="cert-title">Certificate of Completion</h3>
+            <p class="cert-presentation">this digital credential is proudly presented to</p>
+            <div class="cert-name" id="cert-display-name">Student Name</div>
+          </div>
+          
+          <div class="cert-details">
+            for having successfully met all qualification standards and assessment tests in
+            <div class="cert-course" id="cert-display-course">Course Name</div>
+            with a final assessment grade of <span class="cert-course" id="cert-display-grade">N/A</span>.
+          </div>
+
+          <div class="cert-footer">
+            <div class="cert-sign">
+              <div class="cert-sign-line"></div>
+              <span>Authorized Registrar</span>
+            </div>
+            <div class="cert-seal">ONEST<br>VALID</div>
+            <div class="cert-sign">
+              <div class="cert-sign-line"></div>
+              <span>Security Issuer</span>
+            </div>
+          </div>
+          <div class="cert-uuid" id="cert-display-uuid">uuid: -</div>
+        </div>
+
+        <!-- Raw inspector text area -->
+        <pre class="code-box" id="raw-code-view">JSON Payload loads here...</pre>
+      </div>
+
+      <!-- Download Button -->
+      <button class="btn-action" id="btn-download" style="margin-top: 15px; display: none; background: #1e293b; border: 1px solid var(--border-thin); color: #ffffff; width: 100%;" onclick="downloadCertificate()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+        Download Signed JSON
+      </button>
+
+      <!-- Live Drag & Drop scanner -->
+      <div class="panel-card scanner-panel">
+        <div class="panel-title">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          Cryptographic Integrity Scanner
+        </div>
+        
+        <div class="scanner-target" id="drop-target" onclick="document.getElementById('file-loader').click()">
+          <div class="scanner-laser" id="laser-bar"></div>
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin: 0 auto 8px auto; display: block;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+          <p style="font-size: 0.85rem; font-weight: 500;">Drag & Drop **Issued Credential file** here, or browse</p>
+          <span style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-top: 4px;">Automatically checks mathematics signatures & active status</span>
+        </div>
+        <input type="file" id="file-loader" accept=".json" style="display: none;" onchange="handleFileDrop(event)">
+
+        <div class="verdict-banner" id="verdict-banner-box">
+          <div id="verdict-icon" style="display: flex; align-items: center;"></div>
+          <div>
+            <div style="font-weight: 800; font-size: 0.95rem;" id="verdict-title">Verification Successful</div>
+            <div style="font-size: 0.8rem;" id="verdict-reason">Reason details.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- COLUMN 3: TRUST BLUEPRINT -->
+    <div class="column blueprint-column">
+      <div class="panel-card" style="height: 100%;">
+        <div class="panel-title">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          Trust Protocol Details
+        </div>
+        <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 15px; line-height: 1.45;">
+          Click the steps below to inspect how the cryptographic verifier validates signed W3C credentials.
+        </p>
+
+        <div class="blueprint-list">
+          <div class="blueprint-step active" onclick="activateStep(1)">
+            <div class="step-header">
+              <span class="step-title">1. Envelope Extraction</span>
+              <span class="step-number">STEP 1</span>
+            </div>
+            <div class="step-desc">Parse JWS string into Header, Payload, and Signature components.</div>
+          </div>
+
+          <div class="blueprint-step" onclick="activateStep(2)">
+            <div class="step-header">
+              <span class="step-title">2. JSON Canonicalization</span>
+              <span class="step-number">STEP 2</span>
+            </div>
+            <div class="step-desc">Rebuild canonical payload data and compute SHA-256 binary hash.</div>
+          </div>
+
+          <div class="blueprint-step" onclick="activateStep(3)">
+            <div class="step-header">
+              <span class="step-title">3. ECDSA ES256 Math</span>
+              <span class="step-number">STEP 3</span>
+            </div>
+            <div class="step-desc">Mathematically verify ECDSA signature (r,s) bytes against public key.</div>
+          </div>
+
+          <div class="blueprint-step" onclick="activateStep(4)">
+            <div class="step-header">
+              <span class="step-title">4. Registry Verification</span>
+              <span class="step-number">STEP 4</span>
+            </div>
+            <div class="step-desc">Check database state for revocation status of credential UUID.</div>
+          </div>
+        </div>
+
+        <div class="comparison-box">
+          <div class="comparison-title" id="comp-tech-header">JWS Envelope Breakdown</div>
+          <div class="comparison-desc" id="comp-tech-desc">
+            The verification algorithm splits the credential into its distinct parts, decoding the base64url header to verify the key algorithm configuration.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ABOUT PAGE CONTAINER -->
+  <div id="section-about" class="workspace" style="display: none; grid-template-columns: 1fr; overflow-y: auto; height: auto;">
+    <div class="panel-card" style="max-width: 800px; margin: 20px auto; gap: 20px;">
+      <h2 style="color: var(--text-main);">Technical Protocol Specifications</h2>
+      
+      <div>
+        <h4 style="margin-bottom: 6px; color: var(--color-purple);">Elliptic Curve Cryptography (ES256)</h4>
+        <p style="font-size: 0.9rem; color: var(--text-secondary); line-height: 1.5;">
+          This platform utilizes ECDSA (Elliptic Curve Digital Signature Algorithm) configured on the standard NIST P-256 elliptic curve combined with a SHA-256 digest hash (ES256). Elliptic Curve keys are highly efficient, offering the same cryptographic strength as a 3072-bit RSA key with only 256 bits, leading to faster computations and shorter signature envelopes suitable for secure validation loops.
+        </p>
+      </div>
+
+      <div>
+        <h4 style="margin-bottom: 6px; color: var(--color-purple);">Canonicalization Logic</h4>
+        <p style="font-size: 0.9rem; color: var(--text-secondary); line-height: 1.5;">
+          To avoid signature check failures caused by different programming languages parsing and sorting object properties differently (which alters spacing and character offsets), this system implements a zero-dependency JSON canonicalization algorithm. Before signing or verifying, the payload is recursively sorted by key name and stripped of formatting spaces to construct an identical byte sequence across all networks.
+        </p>
+      </div>
+
+      <div>
+        <h4 style="margin-bottom: 6px; color: var(--color-purple);">Dynamic Status Registry</h4>
+        <p style="font-size: 0.9rem; color: var(--text-secondary); line-height: 1.5;">
+          This platform implements dynamic lifecycle checking. The verifier checks both the mathematical integrity of the cryptographic signature and the database state of the credential. This dual validation protects against unauthorized credential usage after revocation, maintaining strict trust bounds across the network.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = 'http://localhost:3000/api/credentials';
+    let loadedCredential = null;
+    let selectedCanvasView = 'visual';
+
+    // Vector SVGs to replace emojis in verification verdict dynamically
+    const shieldSuccessSvg = `<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--color-emerald)"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>`;
+    const warningErrorSvg = `<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--color-rose)"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`;
+
+    const blueprintDetails = {
+      1: {
+        title: "JWS Envelope Breakdown",
+        desc: "The verification algorithm splits the JWS string by its period '.' delimiters. It then Base64url-decodes the JWS Header to read key algorithm configuration properties (verifying 'alg' is 'ES256')."
+      },
+      2: {
+        title: "JSON-LD Canonicalization",
+        desc: "The verifier reconstructs the original JSON-LD data payload, sorts all object keys alphabetically, removes white spaces, and hashes it using SHA-256. This ensures a consistent input byte array for verification."
+      },
+      3: {
+        title: "ECDSA P-256 Signature Verification",
+        desc: "Using the issuer's public ECDSA P-256 key, the cryptographic verify engine validates that the signature bytes (r, s parameters) match the computed SHA-256 digest hash of the canonical claims payload."
+      },
+      4: {
+        title: "Database Revocation Verification",
+        desc: "The verifier extracts the credential UUID from the verified payload, and checks the database registry's status. If the credential has been revoked by the issuer, validation fails despite a mathematically valid signature."
+      }
+    };
+
+    /* -----------------------------------------------------------
+      TAB TOGGLE & PAGE ROUTING
+    ----------------------------------------------------------- */
+    function switchNav(tabId) {
+      document.querySelectorAll('.nav-link').forEach(btn => btn.classList.remove('active'));
+      event.currentTarget.classList.add('active');
+
+      if (tabId === 'vault') {
+        document.getElementById('section-vault').style.display = 'grid';
+        document.getElementById('section-about').style.display = 'none';
+      } else {
+        document.getElementById('section-vault').style.display = 'none';
+        document.getElementById('section-about').style.display = 'block';
+      }
+    }
+
+    function toggleCanvas(type) {
+      selectedCanvasView = type;
+      document.querySelectorAll('.canvas-tab').forEach(btn => btn.classList.remove('active'));
+      
+      const tabBtn = (type === 'visual') ? document.getElementById('tab-visual') : document.getElementById('tab-raw');
+      tabBtn.classList.add('active');
+
+      if (!loadedCredential) return;
+
+      const certGraphic = document.getElementById('visual-cert-view');
+      const codeBox = document.getElementById('raw-code-view');
+
+      if (type === 'visual') {
+        certGraphic.style.display = 'flex';
+        codeBox.style.display = 'none';
+      } else {
+        certGraphic.style.display = 'none';
+        codeBox.style.display = 'block';
+      }
+    }
+
+    function activateStep(stepNum) {
+      document.querySelectorAll('.blueprint-step').forEach((el, idx) => {
+        if (idx === (stepNum - 1)) el.classList.add('active');
+        else el.classList.remove('active');
+      });
+
+      document.getElementById('comp-tech-header').textContent = blueprintDetails[stepNum].title;
+      document.getElementById('comp-tech-desc').textContent = blueprintDetails[stepNum].desc;
+    }
+
+    function copyUuidText() {
+      const uuid = document.getElementById('input-revoke-uuid').value.trim();
+      if (!uuid) return;
+      navigator.clipboard.writeText(uuid).then(() => {
+        alert('Copied credential UUID to clipboard!');
+      }).catch(err => {
+        console.error('Failed to copy text: ', err);
+      });
+    }
+
+    /* -----------------------------------------------------------
+      SYNC & ISSUANCE API CALL
+    ----------------------------------------------------------- */
+    async function triggerSync() {
+      const moodleUserId = document.getElementById('input-user').value;
+      const moodleCourseId = document.getElementById('input-course').value;
+      const syncBtn = document.getElementById('btn-sync');
+
+      if (!moodleUserId || !moodleCourseId) {
+        alert('Please fill in user and course inputs.');
+        return;
+      }
+
+      syncBtn.disabled = true;
+      syncBtn.innerHTML = 'Evaluating LMS Data...';
+
+      try {
+        const response = await fetch(`${API_BASE}/sync`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            moodleUserId: parseInt(moodleUserId),
+            moodleCourseId: parseInt(moodleCourseId)
+          })
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+          loadedCredential = data;
+
+          // Populate visual card elements
+          const subject = data.credential.credentialSubject;
+          document.getElementById('cert-display-name').textContent = subject.studentName;
+          document.getElementById('cert-display-course').textContent = subject.courseName;
+          document.getElementById('cert-display-grade').textContent = subject.gradeReported;
+          document.getElementById('cert-display-uuid').textContent = `credential id: ${data.credentialUuid}`;
+
+          // Populate raw JSON string
+          document.getElementById('raw-code-view').textContent = JSON.stringify(data, null, 2);
+          
+          // Autofill revocation card input to facilitate quick testing
+          document.getElementById('input-revoke-uuid').value = data.credentialUuid;
+
+          // Display download action
+          document.getElementById('btn-download').style.display = 'flex';
+
+          // Transition preview container states
+          document.getElementById('blueprint-view').style.display = 'none';
+          toggleCanvas(selectedCanvasView);
+
+          alert('Success: W3C Verifiable Credential issued and signed!');
+        } else {
+          alert('Issuance Rejected: ' + (data.message || data.error));
+        }
+      } catch (error) {
+        console.error(error);
+        alert('Sync Error: Failed to connect to port 3000 backend.');
+      } finally {
+        syncBtn.disabled = false;
+        syncBtn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg> Sync & Issue VC`;
+      }
+    }
+
+    /* -----------------------------------------------------------
+      VERIFICATION VAULT (DRAG & DROP SCANNER)
+    ----------------------------------------------------------- */
+    const dropTarget = document.getElementById('drop-target');
+
+    ['dragenter', 'dragover'].forEach(name => {
+      dropTarget.addEventListener(name, e => {
+        e.preventDefault();
+        dropTarget.classList.add('dragover');
+      });
+    });
+
+    ['dragleave', 'drop'].forEach(name => {
+      dropTarget.addEventListener(name, e => {
+        e.preventDefault();
+        dropTarget.classList.remove('dragover');
+      });
+    });
+
+    dropTarget.addEventListener('drop', e => {
+      const files = e.dataTransfer.files;
+      if (files.length > 0) processFile(files[0]);
+    });
+
+    function handleFileDrop(e) {
+      const files = e.target.files;
+      if (files.length > 0) processFile(files[0]);
+    }
+
+    async function processFile(file) {
+      const laser = document.getElementById('laser-bar');
+      const banner = document.getElementById('verdict-banner-box');
+      const vIcon = document.getElementById('verdict-icon');
+      const vTitle = document.getElementById('verdict-title');
+      const vReason = document.getElementById('verdict-reason');
+
+      if (!file) return;
+
+      // Enable scanner laser animation
+      laser.style.display = 'block';
+      banner.style.display = 'none';
+
+      try {
+        const text = await file.text();
+        const json = JSON.parse(text);
+        const jwsStr = json.jws || json;
+
+        if (typeof jwsStr !== 'string') {
+          throw new Error('JSON format is missing standard JWS envelope property.');
+        }
+
+        // Send to backend validation route
+        const response = await fetch(`${API_BASE}/verify`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ jws: jwsStr })
+        });
+
+        const data = await response.json();
+        
+        // Wait 1 second to simulate active cryptographic scanner delay
+        await new Promise(resolve => setTimeout(resolve, 1000));
+
+        banner.style.display = 'flex';
+        if (response.ok && data.verified) {
+          banner.className = 'verdict-banner success';
+          vIcon.innerHTML = shieldSuccessSvg;
+          vTitle.textContent = 'Integrity Validation Passed';
+          vReason.textContent = `Mathematical signature matches. Credential Active. Student: ${data.subject.studentName}`;
+
+          // Also populate central canvas with details
+          document.getElementById('cert-display-name').textContent = data.subject.studentName;
+          document.getElementById('cert-display-course').textContent = data.subject.courseName;
+          document.getElementById('cert-display-grade').textContent = data.subject.gradeReported;
+          document.getElementById('cert-display-uuid').textContent = `verified issuer: ${data.issuer}`;
+          document.getElementById('raw-code-view').textContent = JSON.stringify(json, null, 2);
+          
+          document.getElementById('blueprint-view').style.display = 'none';
+          toggleCanvas('visual');
+        } else {
+          banner.className = 'verdict-banner error';
+          vIcon.innerHTML = warningErrorSvg;
+          vTitle.textContent = 'Validation Terminated';
+          vReason.textContent = data.reason || 'Cryptographic signature is mathematically invalid (altered fields).';
+        }
+
+      } catch (err) {
+        banner.style.display = 'flex';
+        banner.className = 'verdict-banner error';
+        vIcon.innerHTML = warningErrorSvg;
+        vTitle.textContent = 'Format Verification Error';
+        vReason.textContent = err.message;
+      } finally {
+        laser.style.display = 'none';
+      }
+    }
+
+    /* -----------------------------------------------------------
+      REVOCATION DB INTERACTION
+    ----------------------------------------------------------- */
+    async function checkStatus() {
+      const uuid = document.getElementById('input-revoke-uuid').value.trim();
+      const box = document.getElementById('revocation-status-box');
+      const textUuid = document.getElementById('revocation-display-uuid');
+      const badge = document.getElementById('revocation-display-status');
+      const toggleBtn = document.getElementById('btn-toggle-revoke');
+
+      if (!uuid) {
+        alert('Please paste a credential UUID first.');
+        return;
+      }
+
+      try {
+        const response = await fetch(`${API_BASE}/${uuid}`);
+        const data = await response.json();
+        
+        box.style.display = 'flex';
+        textUuid.textContent = uuid.slice(0, 10) + '...';
+
+        if (response.ok && data.credentialUuid) {
+          badge.textContent = data.status;
+          badge.className = `badge-status ${data.status.toLowerCase()}`;
+          toggleBtn.style.display = 'inline-block';
+        } else {
+          badge.textContent = 'NOT FOUND';
+          badge.className = 'badge-status revoked';
+          toggleBtn.style.display = 'none';
+        }
+      } catch (e) {
+        alert('Connection error querying revocation registry.');
+      }
+    }
+
+    async function retrieveCredential() {
+      const uuid = document.getElementById('input-search-uuid').value.trim();
+      const retrieveBtn = document.getElementById('btn-retrieve');
+
+      if (!uuid) {
+        alert('Please enter a credential UUID.');
+        return;
+      }
+
+      retrieveBtn.disabled = true;
+      retrieveBtn.innerHTML = 'Retrieving...';
+
+      try {
+        const response = await fetch(`${API_BASE}/${uuid}`);
+        const data = await response.json();
+
+        if (response.ok && data.credentialUuid) {
+          loadedCredential = data;
+
+          // Populate visual card elements
+          const subject = data.credential.credentialSubject;
+          document.getElementById('cert-display-name').textContent = subject.studentName;
+          document.getElementById('cert-display-course').textContent = subject.courseName;
+          document.getElementById('cert-display-grade').textContent = subject.gradeReported;
+          document.getElementById('cert-display-uuid').textContent = `credential id: ${data.credentialUuid}`;
+
+          // Populate raw JSON string
+          document.getElementById('raw-code-view').textContent = JSON.stringify(data, null, 2);
+          
+          // Autofill revocation card input to facilitate quick testing
+          document.getElementById('input-revoke-uuid').value = data.credentialUuid;
+
+          // Display download action
+          document.getElementById('btn-download').style.display = 'flex';
+
+          // Transition preview container states
+          document.getElementById('blueprint-view').style.display = 'none';
+          toggleCanvas(selectedCanvasView);
+
+          alert('Success: Credential retrieved from database ledger!');
+        } else {
+          alert('Error: ' + (data.error || 'Credential not found.'));
+        }
+      } catch (error) {
+        console.error(error);
+        alert('Fetch Error: Failed to connect to backend.');
+      } finally {
+        retrieveBtn.disabled = false;
+        retrieveBtn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg> Fetch & Display`;
+      }
+    }
+
+    function downloadCertificate() {
+      if (!loadedCredential) return;
+      const filename = `Signed_ONEST_Credential_${loadedCredential.credentialUuid}.json`;
+      const blob = new Blob([JSON.stringify(loadedCredential, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    async function toggleRevoke() {
+      const uuid = document.getElementById('input-revoke-uuid').value.trim();
+      if (!uuid) return;
+
+      try {
+        const response = await fetch(`${API_BASE}/revoke`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ credentialUuid: uuid })
+        });
+        
+        const data = await response.json();
+        if (response.ok) {
+          alert(`Success: Credential status is now ${data.status}`);
+          checkStatus();
+        } else {
+          alert('Status change rejected: ' + data.error);
+        }
+      } catch (e) {
+        alert('Error updating revocation status.');
+      }
+    }
+  </script>
+</body>
+</html>

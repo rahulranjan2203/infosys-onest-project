@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ONEST Certification Hub - Issuance & Verification</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      body {
+        font-family: "Poppins", sans-serif;
+        margin: 0;
+        padding: 20px;
+        background-color: #a77e7e;
+      }
+
+      h2 {
+        color: #0c1921;
+        border-bottom: 2px solid #0c2e41;
+        padding-bottom: 10px;
+        margin-bottom: 20px;
+        text-align: center;
+      }
+
+      /* Tab Container */
+      .tab-container {
+        background-color: rgb(191, 175, 228);
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        margin: 0 auto;
+        width: 90%;
+        max-width: 1200px;
+      }
+
+      .tab-buttons {
+        display: flex;
+        margin-bottom: 15px;
+      }
+
+      .tab-button {
+        padding: 10px 20px;
+        cursor: pointer;
+        border: none;
+        background-color: #7f98d3;
+        border-radius: 5px 5px 0 0;
+        margin-right: 5px;
+        font-weight: bold;
+        transition: background-color 0.2s;
+      }
+
+      .tab-button.active {
+        background-color: #152f4b;
+        color: white;
+      }
+
+      /* Layout */
+      .tab-content {
+        display: none;
+      }
+      .tab-content.active {
+        display: block;
+      }
+
+      .tab-layout {
+        display: flex;
+        width: 100%;
+        gap: 30px;
+        align-items: flex-start;
+      }
+
+      .form-side {
+        flex: 1;
+      }
+      .info-side {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-weight: bold;
+      }
+
+      .info-side img {
+        max-width: 50%;
+      }
+
+      /* Form Styling */
+      label {
+        display: block;
+        margin-top: 10px;
+        font-weight: bold;
+      }
+
+      input[type="text"],
+      input[type="password"] {
+        width: 80%;
+        padding: 8px;
+        margin-top: 5px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+      }
+
+      /* File Upload */
+      #pdcFile {
+        display: none;
+      }
+
+      .file-upload-box {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        padding: 10px 15px;
+        border: 2px dashed #22262d;
+        background: #f7f9fd;
+        border-radius: 8px;
+        margin-top: 10px;
+        width: fit-content;
+      }
+
+      .choose-file-btn {
+        background-color: #21335c;
+        color: #fff;
+        padding: 8px 15px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: background-color 0.2s;
+      }
+
+      .choose-file-btn:hover {
+        background-color: #3d5a78;
+      }
+      #fileName {
+        font-size: 14px;
+        color: #333;
+      }
+
+      /* Buttons */
+      button {
+        background-color: #21335c;
+        color: white;
+        padding: 10px 15px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        margin-top: 20px;
+        transition: background-color 0.2s;
+      }
+
+      button:hover:not(:disabled) {
+        background-color: #3d5a78;
+      }
+      button:disabled {
+        background-color: #999;
+        cursor: not-allowed;
+      }
+      .download-button {
+        background-color: #2c1e14;
+        margin-left: 10px; /* Adjusted margin */
+      }
+      .render-button {
+        background-color: #007bff;
+      }
+
+      /* Response Box */
+      #responseMessage {
+        color: #ffffff;
+        border-radius: 5px;
+        background-color: #3e3c42;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+
+        overflow-x: auto;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        margin: 0 auto;
+        margin-top: 20px;
+        width: 90%;
+        max-width: 1200px;
+      }
+      .status-box {
+        padding: 20px;
+        margin: 20px 0;
+        border-radius: 8px;
+      }
+      .status-box p {
+        font-weight: bold;
+      }
+
+      /* Responsive */
+      @media (max-width: 850px) {
+        .tab-layout {
+          flex-direction: column;
+          align-items: center;
+          text-align: center;
+        }
+        .info-side {
+          margin-top: 20px;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <h2>ONEST Certification Hub</h2>
+
+    <div class="tab-container">
+      <div class="tab-buttons">
+        <button class="tab-button active" onclick="openTab(event, 'issuance')">
+          1. Issue New PDC
+        </button>
+        <button class="tab-button" onclick="openTab(event, 'verification')">
+          2. Verify PDC
+        </button>
+      </div>
+
+      <!-- TAB 1 -->
+      <div id="issuance" class="tab-content active">
+        <div class="tab-layout">
+          <div class="form-side">
+            <p>
+              Enter Learner & Course Credentials to securely **PULL** the data
+              and issue a new certificate.
+            </p>
+
+            <form id="certificationForm">
+              <label>LMS Username:</label>
+              <input type="text" id="username" value="arjun.sharma" required />
+
+              <label>LMS Password:</label>
+              <input
+                type="password"
+                id="password"
+                value="LearnerPassword123"
+                required
+              />
+
+              <label>Learner ID (LMS ID):</label>
+              <input type="text" id="learnerId" value="U3987" required />
+
+              <label>Course ID (e.g., INF-DS-Core-P30):</label>
+              <input
+                type="text"
+                id="courseId"
+                value="INF-DS-Core-P30"
+                required
+              />
+
+              <label>Full Name (For Certificate):</label>
+              <input
+                type="text"
+                id="fullName"
+                value="Arjun S. Sharma"
+                required
+              />
+
+              <button type="submit" id="issueButton">Request & Sign PDC</button>
+            </form>
+          </div>
+
+          <div class="info-side">
+            <div style="text-align: center">
+              <img src="png_trust.png" alt="Issuance Info" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 2 -->
+      <div id="verification" class="tab-content">
+        <div class="tab-layout">
+          <div class="form-side">
+            <p>
+              Upload a signed PDC JSON file to instantly verify its authenticity
+              and check for tampering.
+            </p>
+
+            <form id="verificationForm">
+              <div class="file-upload-box">
+                <label for="pdcFile" class="choose-file-btn">Choose File</label>
+                <span id="fileName">No file chosen...</span>
+              </div>
+
+              <input type="file" id="pdcFile" accept=".json" required />
+
+              <button type="submit" id="verifyButton">
+                Verify PDC (Check Signature)
+              </button>
+            </form>
+          </div>
+
+          <div class="info-side">
+            <div style="text-align: center">
+              <img src="png_verify.png" alt="Verify Info" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="responseMessage">Output will appear here.</div>
+    <div id="downloadContainer"></div>
+
+    <script>
+      /* -----------------------------------------------------------
+        CONFIG
+    ----------------------------------------------------------- */
+      const API_BASE_URL = "http://localhost:5001/api/";
+
+      /* -----------------------------------------------------------
+        TAB SWITCHING
+    ----------------------------------------------------------- */
+      function openTab(evt, tabName) {
+        document
+          .querySelectorAll(".tab-content")
+          .forEach((t) => t.classList.remove("active"));
+        document
+          .querySelectorAll(".tab-button")
+          .forEach((b) => b.classList.remove("active"));
+
+        document.getElementById(tabName).classList.add("active");
+        evt.currentTarget.classList.add("active");
+
+        document.getElementById("responseMessage").textContent = "";
+        document.getElementById("downloadContainer").innerHTML = "";
+      }
+
+      document.addEventListener("DOMContentLoaded", () => {
+        // Initialize: show the issuance tab by default
+        const issuanceTab = document.getElementById("issuance");
+        if (issuanceTab) issuanceTab.classList.add("active");
+
+        // Event listener for file input change to display file name
+        document.getElementById("pdcFile").addEventListener("change", (e) => {
+          const fileNameSpan = document.getElementById("fileName");
+          if (e.target.files.length > 0) {
+            fileNameSpan.textContent = e.target.files[0].name;
+          } else {
+            fileNameSpan.textContent = "No file chosen...";
+          }
+        });
+      });
+
+      /* -----------------------------------------------------------
+        UI HELPERS
+    ----------------------------------------------------------- */
+      function setLoading(btnId, state) {
+        const btn = document.getElementById(btnId);
+        if (!btn) return;
+        btn.disabled = state;
+        btn.textContent = state
+          ? "Processing..."
+          : btnId === "issueButton"
+          ? "Request & Sign PDC"
+          : "Verify PDC (Check Signature)";
+      }
+
+      function displayResult(status, msg, details) {
+        const box = document.getElementById("responseMessage");
+        box.className = status;
+        box.textContent = msg;
+
+        let credentialObject = null;
+
+        if (details) {
+          try {
+            const formatted =
+              typeof details === "string" ? JSON.parse(details) : details;
+            box.textContent +=
+              "\n\nDetails:\n" + JSON.stringify(formatted, null, 2);
+            // Check if the credential is nested (as returned by /issue/initiate)
+            credentialObject = formatted.credential || formatted;
+          } catch (e) {
+            box.textContent += "\n\nDetails: " + details;
+          }
+        }
+        return credentialObject;
+      }
+
+      function downloadCredential(obj, filename = "Issued_PDC.json") {
+        if (!obj) return;
+        const blob = new Blob([JSON.stringify(obj, null, 2)], {
+          type: "application/json",
+        });
+        const url = URL.createObjectURL(blob);
+
+        const downloadContainer = document.getElementById("downloadContainer");
+        // Create an 'a' element for downloading the JSON
+        const jsonDownloadLink = document.createElement("a");
+        jsonDownloadLink.href = url;
+        jsonDownloadLink.download = filename;
+
+        const downloadButton = document.createElement("button");
+        downloadButton.textContent = "Download PDC (JSON)";
+        downloadButton.className = "download-button";
+
+        downloadButton.onclick = () => {
+          jsonDownloadLink.click();
+        };
+
+        downloadContainer.appendChild(downloadButton);
+      }
+
+      function renderCertificateView(credential, qrCodeImage) {
+        const renderContainer = document.getElementById("downloadContainer");
+
+        const viewButton = document.createElement("button");
+        viewButton.textContent = "View Printable Certificate (HTML/QR)";
+        viewButton.className = "render-button";
+
+        viewButton.onclick = async () => {
+          const res = await fetch(API_BASE_URL + "cert/render", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            // Send the full credential and QR data to the server for rendering
+            body: JSON.stringify({ credential, qrCodeImage }),
+          });
+
+          if (res.ok) {
+            const htmlText = await res.text();
+            // Open the HTML content in a new window/tab
+            const newWindow = window.open();
+            newWindow.document.write(htmlText);
+            newWindow.document.close();
+          } else {
+            // If rendering fails (e.g., server crash on this route)
+            alert("Failed to render certificate view. Check server logs.");
+          }
+        };
+        renderContainer.appendChild(viewButton);
+      }
+
+      /* -----------------------------------------------------------
+        ISSUANCE LOGIC (PART 2)
+    ----------------------------------------------------------- */
+      document
+        .getElementById("certificationForm")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          setLoading("issueButton", true);
+          document.getElementById("downloadContainer").innerHTML = ""; // Clear download buttons
+
+          const payload = {
+            learnerId: document.getElementById("learnerId").value,
+            courseId: document.getElementById("courseId").value,
+            fullName: document.getElementById("fullName").value,
+            username: document.getElementById("username").value,
+            password: document.getElementById("password").value,
+            consentGiven: true,
+          };
+
+          try {
+            const res = await fetch(API_BASE_URL + "issue/initiate", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(payload),
+            });
+
+            const data = await res.json();
+
+            // index.html (CORRECTED LOGIC)
+            if (res.ok) {
+              const fullResult = displayResult(
+                "success",
+                `✅ SUCCESS! Credential Issued and Signed. (Status: ${res.status})`,
+                // Change the third argument to null or a simple message:
+                null
+              );
+
+              // 1. Activate Download Button for the JSON (Data variable is still available here)
+              if (data) downloadCredential(data, "Issued_PDC.json"); // Use 'data' directly
+
+              // 2. CRITICAL: Activate View/Render Button for HTML/QR
+              if (data.credential && data.qrCodeImage) {
+                renderCertificateView(data.credential, data.qrCodeImage);
+              }
+            } else {
+              // Error: Authentication Failure (401) or Server Crash (500)
+              displayResult(
+                "error",
+                `❌ ERROR ${res.status}`,
+                data.details || data.error || res.statusText
+              );
+            }
+          } catch (err) {
+            displayResult(
+              "error",
+              "❌ Network Error: Could not connect to the server. Is node onest_hub_firestore.js running?",
+              err.message
+            );
+          } finally {
+            setLoading("issueButton", false);
+          }
+        });
+
+      /* -----------------------------------------------------------
+        VERIFICATION LOGIC (PART 3)
+    ----------------------------------------------------------- */
+      document
+        .getElementById("verificationForm")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          setLoading("verifyButton", true);
+
+          const fileInput = document.getElementById("pdcFile");
+          const file = fileInput.files[0];
+
+          if (!file) {
+            setLoading("verifyButton", false);
+            return displayResult(
+              "error",
+              "Please select a signed PDC JSON file."
+            );
+          }
+
+          try {
+            const text = await file.text();
+            const parsed = JSON.parse(text);
+
+            // CRITICAL DATA CLEANUP: Ensures we send the raw credential object, not the nested status wrapper
+            const verificationBody = parsed.credential || parsed;
+
+            if (
+              !verificationBody.proof ||
+              !verificationBody.credentialSubject
+            ) {
+              throw new Error(
+                "File is not a valid Verifiable Credential (missing proof or subject)."
+              );
+            }
+
+            // 1. Send the clean credential object to the verification endpoint
+            const res = await fetch(API_BASE_URL + "verify", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(verificationBody),
+            });
+
+            const result = await res.json();
+
+            if (res.ok) {
+              const data = await res.json();
+
+              // 1. Clear the message box to avoid showing ugly JSON
+              document.getElementById("responseMessage").textContent = "";
+
+              // 2. Show a clean success status in the message box (CRITICAL STEP)
+              // NOTE: We now use the displayResult function primarily to show the SUCCESS status.
+              const statusMsg = `✅ SUCCESS! Certificate has been opened in a new tab.`;
+              displayResult("success", statusMsg, null);
+
+              // 3. Open the printable HTML view directly in a new window/tab
+              if (data.credential && data.qrCodeImage) {
+                renderCertificateView(data.credential, data.qrCodeImage);
+              }
+
+              // 4. Activate Download Button for the JSON (Always available)
+              if (data.credential) {
+                downloadCredential(data, "Issued_PDC.json");
+              }
+            } else {
+              // Error: Authentication Failure (401) or Server Crash (500)
+              const data = await res.json();
+              displayResult(
+                "error",
+                `❌ ERROR ${res.status}`,
+                data.details || data.error || res.statusText
+              );
+            }
+          } catch (err) {
+            displayResult(
+              "error",
+              "Processing Error:",
+              err.message.includes("JSON.parse")
+                ? "The file is not a valid JSON document."
+                : err.message
+            );
+          } finally {
+            setLoading("verifyButton", false);
+          }
+        });
+    </script>
+  </body>
+</html>

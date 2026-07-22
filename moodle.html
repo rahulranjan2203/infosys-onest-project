@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Moodle LMS - Administrator Portal</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg-light: #f8fafc;
+      --sidebar-bg: #0f172a;
+      --card-bg: #ffffff;
+      --border-color: #e2e8f0;
+      --accent-orange: #f97316; /* Moodle Orange */
+      --accent-moodle-dark: #ea580c;
+      --text-main: #0f172a;
+      --text-secondary: #475569;
+      --text-muted: #94a3b8;
+      --success: #10b981;
+      --danger: #ef4444;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.06);
+      --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.08), 0 2px 4px -1px rgba(0,0,0,0.04);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg-light);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+    }
+
+    h1, h2, h3, h4, .logo-text {
+      font-family: 'Outfit', sans-serif;
+    }
+
+    /* -----------------------------------------------------------
+      SIDEBAR LAYOUT
+    ----------------------------------------------------------- */
+    .sidebar {
+      width: 260px;
+      background-color: var(--sidebar-bg);
+      display: flex;
+      flex-direction: column;
+      padding: 30px 20px;
+      position: fixed;
+      height: 100vh;
+      z-index: 10;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 40px;
+    }
+
+    .brand-logo {
+      background: var(--accent-orange);
+      color: white;
+      font-weight: 800;
+      font-size: 1.4rem;
+      width: 38px;
+      height: 38px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .brand-logo svg {
+      stroke: white;
+    }
+
+    .brand-name {
+      color: white;
+      font-weight: 700;
+      font-size: 1.25rem;
+    }
+
+    .nav-menu {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      flex: 1;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 16px;
+      color: var(--text-muted);
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: 500;
+      font-size: 0.95rem;
+      transition: all 0.25s;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      text-align: left;
+    }
+
+    .nav-item:hover {
+      color: white;
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .nav-item.active {
+      color: white;
+      background: var(--accent-orange);
+    }
+
+    .nav-icon {
+      display: flex;
+      align-items: center;
+    }
+
+    .sidebar-footer {
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      padding-top: 20px;
+    }
+
+    .cert-hub-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px;
+      width: 100%;
+      border-radius: 8px;
+      background: rgba(6, 182, 212, 0.1);
+      border: 1px solid rgba(6, 182, 212, 0.25);
+      color: #06b6d4;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.9rem;
+      transition: all 0.3s;
+    }
+
+    .cert-hub-btn svg {
+      stroke: #06b6d4;
+    }
+
+    .cert-hub-btn:hover {
+      background: rgba(6, 182, 212, 0.2);
+    }
+
+    /* -----------------------------------------------------------
+      MAIN CONTAINER
+    ----------------------------------------------------------- */
+    .main-content {
+      margin-left: 260px;
+      flex: 1;
+      padding: 40px 50px;
+      max-width: 1100px;
+    }
+
+    .page-header {
+      margin-bottom: 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .page-title {
+      font-size: 2.1rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      margin-bottom: 4px;
+    }
+
+    .page-desc {
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+    }
+
+    .status-pill {
+      padding: 6px 14px;
+      background-color: #fff3e0;
+      border: 1px solid #ffe0b2;
+      color: #e65100;
+      font-size: 0.85rem;
+      font-weight: 600;
+      border-radius: 20px;
+    }
+
+    /* Stats Row Layout */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    @media (max-width: 768px) {
+      .stats-row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .stat-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .stat-label {
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    /* Content Cards */
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 30px;
+      box-shadow: var(--shadow-sm);
+      margin-bottom: 30px;
+    }
+
+    .section-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--text-main);
+    }
+
+    /* Custom Gradebook Table */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th {
+      text-align: left;
+      padding: 12px;
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+      font-weight: 600;
+      border-bottom: 2px solid var(--border-color);
+      background-color: #f8fafc;
+    }
+
+    td {
+      padding: 16px 12px;
+      border-bottom: 1px solid var(--border-color);
+      font-size: 0.95rem;
+    }
+
+    .student-cell {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .student-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #fed7aa 0%, #ffedd5 100%);
+      color: var(--accent-orange);
+      font-weight: 700;
+      font-size: 0.95rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .student-avatar.bob {
+      background: linear-gradient(135deg, #c084fc 0%, #f3e8ff 100%);
+      color: #8b5cf6;
+    }
+
+    .student-avatar.dynamic {
+      background: linear-gradient(135deg, #93c5fd 0%, #dbeafe 100%);
+      color: #2563eb;
+    }
+
+    .student-details {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .student-name {
+      font-weight: 600;
+    }
+
+    .student-id {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+    }
+
+    .badge-grade {
+      display: inline-block;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    .badge-grade.pass {
+      background-color: #d1fae5;
+      color: #065f46;
+    }
+
+    .badge-grade.fail {
+      background-color: #fee2e2;
+      color: #991b1b;
+    }
+
+    /* Admin Modify Interface */
+    .admin-form {
+      display: grid;
+      grid-template-columns: 1.5fr 1.5fr 1fr 1fr;
+      gap: 20px;
+      align-items: flex-end;
+    }
+
+    @media (max-width: 768px) {
+      .admin-form {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .form-group label {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      font-weight: 600;
+    }
+
+    select, input {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      color: var(--text-main);
+      background-color: #ffffff;
+      font-family: inherit;
+      font-size: 0.95rem;
+      transition: all 0.2s;
+    }
+
+    select:focus, input:focus {
+      outline: none;
+      border-color: var(--accent-orange);
+      box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.15);
+    }
+
+    /* Slider Container */
+    .slider-container {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .slider-container input[type="range"] {
+      flex: 1;
+      padding: 0;
+      cursor: pointer;
+      accent-color: var(--accent-orange);
+    }
+
+    .slider-value {
+      font-weight: 700;
+      font-size: 1.1rem;
+      width: 45px;
+      text-align: right;
+    }
+
+    .btn-submit {
+      padding: 12px 24px;
+      background: linear-gradient(135deg, var(--accent-orange) 0%, var(--accent-moodle-dark) 100%);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: all 0.3s;
+      box-shadow: 0 4px 10px rgba(249, 115, 22, 0.15);
+    }
+
+    .btn-submit:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 15px rgba(249, 115, 22, 0.3);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- SIDEBAR NAVIGATION -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-logo">
+        <!-- SVG Graduation Cap logo -->
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c0 2 2 3 6 3s6-1 6-3v-5"/></svg>
+      </div>
+      <span class="brand-name">Moodle LMS</span>
+    </div>
+
+    <nav class="nav-menu">
+      <button class="nav-item active">
+        <span class="nav-icon">
+          <!-- SVG Bar Chart -->
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        </span> 
+        Gradebook Admin
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <a href="http://localhost:3000" class="cert-hub-btn">
+        <!-- SVG Shield -->
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        Go to Cert Hub
+      </a>
+    </div>
+  </aside>
+
+  <!-- MAIN VIEWPORT -->
+  <main class="main-content">
+    
+    <div class="page-header">
+      <div>
+        <h2 class="page-title">Gradebook Administrator</h2>
+        <p class="page-desc">Simulate assessments and grade revisions for enrolled students.</p>
+      </div>
+      <span class="status-pill">LMS Server Port: 4000</span>
+    </div>
+
+    <!-- STATS ROW -->
+    <section class="stats-row">
+      <div class="stat-card">
+        <span class="stat-label">Total Enrolled</span>
+        <span class="stat-value" id="stats-enrolled">Loading...</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Completion Rate</span>
+        <span class="stat-value" id="stats-completions">Loading...</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Class Average</span>
+        <span class="stat-value" id="stats-average">Loading...</span>
+      </div>
+    </section>
+
+    <!-- GRADEBOOK LIST -->
+    <section class="card">
+      <h3 class="section-title">Enrolled Student Marks</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Student Details</th>
+            <th>Enrolled Course</th>
+            <th>Current Grade</th>
+            <th>Passing Minimum</th>
+            <th>Activity Status</th>
+          </tr>
+        </thead>
+        <tbody id="gradebook-body">
+          <tr>
+            <td colspan="5" style="text-align: center; color: var(--text-secondary); padding: 30px 0;">Loading grades from database...</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- LMS DATABASE REGISTRY (NEW DATA SEEDER) -->
+    <section class="card">
+      <h3 class="section-title" style="color: var(--accent-orange);">LMS Database Registry</h3>
+      <p style="color: var(--text-secondary); font-size: 0.95rem; margin-bottom: 25px; line-height: 1.5;">
+        Add new students or courses dynamically to the shared database. Registered items will immediately become eligible for grade evaluations and sync checking.
+      </p>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px;">
+        <!-- Add Student Form -->
+        <div style="border-right: 1px solid var(--border-color); padding-right: 40px;">
+          <h4 style="margin-bottom: 15px; font-weight: 700; color: var(--text-main);">Add New Student</h4>
+          <div class="form-group" style="margin-bottom: 12px;">
+            <label for="new-student-name">Full Name</label>
+            <input type="text" id="new-student-name" placeholder="e.g. John Doe">
+          </div>
+          <div class="form-group" style="margin-bottom: 12px;">
+            <label for="new-student-id">Moodle User ID</label>
+            <input type="number" id="new-student-id" placeholder="e.g. 3">
+          </div>
+          <div class="form-group" style="margin-bottom: 20px;">
+            <label for="new-student-email">Email Address</label>
+            <input type="email" id="new-student-email" placeholder="e.g. john@toshiba.com">
+          </div>
+          <button class="btn-submit" style="width: 100%;" onclick="submitNewStudent()">Register Student</button>
+        </div>
+
+        <!-- Add Course Form -->
+        <div>
+          <h4 style="margin-bottom: 15px; font-weight: 700; color: var(--text-main);">Add New Course</h4>
+          <div class="form-group" style="margin-bottom: 12px;">
+            <label for="new-course-name">Course Name</label>
+            <input type="text" id="new-course-name" placeholder="e.g. Advanced Cryptography">
+          </div>
+          <div class="form-group" style="margin-bottom: 12px;">
+            <label for="new-course-id">Moodle Course ID</label>
+            <input type="number" id="new-course-id" placeholder="e.g. 103">
+          </div>
+          <div class="form-group" style="margin-bottom: 20px;">
+            <label for="new-course-passing">Passing Grade (%)</label>
+            <input type="number" id="new-course-passing" placeholder="e.g. 65">
+          </div>
+          <button class="btn-submit" style="width: 100%;" onclick="submitNewCourse()">Register Course</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ADMIN GRADEOUT CONFIG -->
+    <section class="card">
+      <h3 class="section-title" style="color: var(--accent-orange);">Simulate Grade Modifications</h3>
+      <p style="color: var(--text-secondary); font-size: 0.95rem; margin-bottom: 25px; line-height: 1.5;">
+        Alter mock scores below and submit to directly modify the Moodle LMS registry. Changes will reflect instantly on the ONEST dashboard sync.
+      </p>
+
+      <div class="admin-form">
+        <div class="form-group">
+          <label for="select-student">Select Student</label>
+          <select id="select-student">
+            <!-- Dynamically populated -->
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="select-course">Select Course</label>
+          <select id="select-course">
+            <!-- Dynamically populated -->
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="slider-grade">Grade Evaluation</label>
+          <div class="slider-container">
+            <input type="range" id="slider-grade" min="0" max="100" value="85" oninput="updateSliderValue(this.value)">
+            <span class="slider-value" id="slider-val-display">85%</span>
+          </div>
+        </div>
+
+        <button class="btn-submit" onclick="submitLMSGrade()">
+          Update LMS Record
+        </button>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    const API_BASE = 'http://localhost:4000/mock-moodle/admin';
+
+    document.addEventListener('DOMContentLoaded', () => {
+      fetchLMSGrades();
+      loadSelectors();
+    });
+
+    function updateSliderValue(val) {
+      document.getElementById('slider-val-display').textContent = val + '%';
+    }
+
+    async function loadSelectors() {
+      const studentSelect = document.getElementById('select-student');
+      const courseSelect = document.getElementById('select-course');
+      
+      try {
+        // Fetch students list
+        const stResponse = await fetch(`${API_BASE}/students-list`);
+        const students = await stResponse.json();
+        
+        studentSelect.innerHTML = '';
+        students.forEach(st => {
+          const opt = document.createElement('option');
+          opt.value = st.moodle_user_id;
+          opt.textContent = `${st.name} (LMS ID: ${st.moodle_user_id})`;
+          studentSelect.appendChild(opt);
+        });
+
+        // Fetch courses list
+        const coResponse = await fetch(`${API_BASE}/courses-list`);
+        const courses = await coResponse.json();
+        
+        courseSelect.innerHTML = '';
+        courses.forEach(co => {
+          const opt = document.createElement('option');
+          opt.value = co.moodle_course_id;
+          opt.textContent = `${co.course_name} (Code: ${co.moodle_course_id})`;
+          courseSelect.appendChild(opt);
+        });
+      } catch (err) {
+        console.error('Error loading dynamic selectors:', err.message);
+      }
+    }
+
+    async function fetchLMSGrades() {
+      const tbody = document.getElementById('gradebook-body');
+      try {
+        const response = await fetch(`${API_BASE}/grades`);
+        if (!response.ok) throw new Error('API request failed');
+        const grades = await response.json();
+
+        tbody.innerHTML = '';
+        
+        let sumGrades = 0;
+        let completeCount = 0;
+
+        grades.forEach(row => {
+          const isPassing = parseFloat(row.grade) >= parseFloat(row.passing_grade);
+          const isAlice = row.student_name.includes('Alice');
+          const isBob = row.student_name.includes('Bob');
+          const avatarClass = isAlice ? 'alice' : (isBob ? 'bob' : 'dynamic');
+          
+          // Split initials
+          const names = row.student_name.split(' ');
+          const initials = names.map(n => n[0]).join('').toUpperCase().slice(0, 2);
+
+          sumGrades += parseFloat(row.grade);
+          if (row.completed) completeCount++;
+
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>
+              <div class="student-cell">
+                <div class="student-avatar ${avatarClass}">${initials}</div>
+                <div class="student-details">
+                  <span class="student-name">${row.student_name}</span>
+                  <span class="student-id">LMS ID: ${row.moodle_user_id}</span>
+                </div>
+              </div>
+            </td>
+            <td>
+              <div class="student-details">
+                <span class="student-name" style="font-weight: 500;">${row.course_name}</span>
+                <span class="student-id">Code: ${row.moodle_course_id}</span>
+              </div>
+            </td>
+            <td>
+              <span class="badge-grade ${isPassing ? 'pass' : 'fail'}">${row.grade}%</span>
+            </td>
+            <td style="color: var(--text-secondary); font-weight: 600;">
+              ${row.passing_grade}%
+            </td>
+            <td>
+              ${row.completed ? 
+                `<span style="color: var(--success); font-weight: 700; font-size: 0.9rem; display: flex; align-items: center; gap: 6px;">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--success)"><polyline points="20 6 9 17 4 12"/></svg>
+                  Active & Complete
+                </span>` : 
+                `<span style="color: var(--danger); font-weight: 700; font-size: 0.9rem; display: flex; align-items: center; gap: 6px;">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--danger)"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                  Incomplete
+                </span>`
+              }
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+
+        // Compute dashboard analytics
+        const avg = sumGrades / grades.length;
+        const completionRate = (completeCount / grades.length) * 100;
+
+        document.getElementById('stats-enrolled').textContent = `${grades.length} Enrolled`;
+        document.getElementById('stats-average').textContent = `${avg.toFixed(1)}%`;
+        document.getElementById('stats-completions').textContent = `${completionRate.toFixed(0)}%`;
+
+      } catch (error) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="5" style="text-align: center; color: var(--danger); padding: 30px 0;">
+              Failed to connect to Moodle database API. Is the server running?
+            </td>
+          </tr>
+        `;
+      }
+    }
+
+    async function submitLMSGrade() {
+      const moodleUserId = document.getElementById('select-student').value;
+      const moodleCourseId = document.getElementById('select-course').value;
+      const grade = document.getElementById('slider-grade').value;
+
+      try {
+        const response = await fetch(`${API_BASE}/grades`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            moodleUserId: parseInt(moodleUserId),
+            moodleCourseId: parseInt(moodleCourseId),
+            grade: parseFloat(grade),
+            completed: 1
+          })
+        });
+
+        if (response.ok) {
+          fetchLMSGrades();
+        } else {
+          const err = await response.json();
+          alert('Error: ' + err.error);
+        }
+      } catch (error) {
+        alert('LMS Communication Error: ' + error.message);
+      }
+    }
+
+    async function submitNewStudent() {
+      const name = document.getElementById('new-student-name').value.trim();
+      const moodleUserId = document.getElementById('new-student-id').value;
+      const email = document.getElementById('new-student-email').value.trim();
+
+      if (!name || !moodleUserId || !email) {
+        alert('Please fill out all fields.');
+        return;
+      }
+
+      try {
+        const response = await fetch(`${API_BASE}/students`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            moodleUserId: parseInt(moodleUserId),
+            name,
+            email
+          })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          alert('Success: Student registered in LMS database!');
+          document.getElementById('new-student-name').value = '';
+          document.getElementById('new-student-id').value = '';
+          document.getElementById('new-student-email').value = '';
+          
+          fetchLMSGrades();
+          loadSelectors();
+        } else {
+          alert('Registration Failed: ' + data.error);
+        }
+      } catch (error) {
+        alert('Error: ' + error.message);
+      }
+    }
+
+    async function submitNewCourse() {
+      const courseName = document.getElementById('new-course-name').value.trim();
+      const moodleCourseId = document.getElementById('new-course-id').value;
+      const passingGrade = document.getElementById('new-course-passing').value;
+
+      if (!courseName || !moodleCourseId || !passingGrade) {
+        alert('Please fill out all fields.');
+        return;
+      }
+
+      try {
+        const response = await fetch(`${API_BASE}/courses`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            moodleCourseId: parseInt(moodleCourseId),
+            courseName,
+            passingGrade: parseFloat(passingGrade)
+          })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          alert('Success: Course registered in LMS database!');
+          document.getElementById('new-course-name').value = '';
+          document.getElementById('new-course-id').value = '';
+          document.getElementById('new-course-passing').value = '';
+          
+          fetchLMSGrades();
+          loadSelectors();
+        } else {
+          alert('Registration Failed: ' + data.error);
+        }
+      } catch (error) {
+        alert('Error: ' + error.message);
+      }
+    }
+  </script>
+</body>
+</html>
