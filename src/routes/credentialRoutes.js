@@ -86,29 +86,56 @@ router.post('/sync', async (req, res) => {
       });
     }
 
-    // 5. Check if credential was already issued
+    // 5. Check if credential was already issued (UPDATE & RE-SIGN if grade was revised)
     const existingCredential = await db.query(
       'SELECT * FROM issued_credentials WHERE completion_id = ?',
       [completionId]
     );
 
+    const issuerDid = process.env.ISSUER_DID || 'did:web:onest.certplatform.com';
+
     if (existingCredential.length > 0) {
       const cred = existingCredential[0];
-      // SQLite stores JSON as string, MySQL stores as JSON object. Parse if necessary.
-      const vcPayload = typeof cred.vc_payload === 'string' ? JSON.parse(cred.vc_payload) : cred.vc_payload;
+      const credentialUuid = cred.credential_uuid;
+      const vcPayload = {
+        "@context": [
+          "https://www.w3.org/2018/credentials/v1",
+          "https://schema.onest.network/credentials/v1"
+        ],
+        "id": `urn:uuid:${credentialUuid}`,
+        "type": ["VerifiableCredential", "ONESTTrainingCredential"],
+        "issuer": issuerDid,
+        "issuanceDate": new Date().toISOString(),
+        "credentialSubject": {
+          "id": user.user_did,
+          "studentName": user.name,
+          "studentEmail": user.email,
+          "courseName": course.course_name,
+          "moodleCourseId": course.moodle_course_id,
+          "gradeReported": `${finalGrade}%`,
+          "status": "Pass"
+        }
+      };
+
+      const jws = cryptoService.signES256(vcPayload);
+      await db.query(
+        'UPDATE issued_credentials SET jws_signature = ?, vc_payload = ? WHERE completion_id = ?',
+        [jws, JSON.stringify(vcPayload), completionId]
+      );
+
+      console.log(`Updated & re-signed credential ${credentialUuid} with revised grade ${finalGrade}% for student ${user.name}`);
+
       return res.json({
         success: true,
-        message: 'Verifiable Credential already generated previously.',
-        credentialUuid: cred.credential_uuid,
-        jws: cred.jws_signature,
+        message: `Verifiable Credential re-signed with revised grade ${finalGrade}%.`,
+        credentialUuid: credentialUuid,
+        jws: jws,
         credential: vcPayload
       });
     }
 
-    // 6. Generate the W3C Verifiable Credential Payload
-    const credentialUuid = crypto.randomUUID(); // Uses Node.js native crypto UUID v4
-    const issuerDid = process.env.ISSUER_DID || 'did:web:onest.certplatform.com';
-    
+    // 6. Generate new W3C Verifiable Credential Payload
+    const credentialUuid = crypto.randomUUID();
     const vcPayload = {
       "@context": [
         "https://www.w3.org/2018/credentials/v1",
@@ -164,7 +191,7 @@ router.get('/:uuid', async (req, res) => {
 
   try {
     const results = await db.query(
-      'SELECT ic.*, u.name as student_name, c.course_name FROM issued_credentials ic ' +
+      'SELECT ic.*, u.name as student_name, c.course_name, cc.grade FROM issued_credentials ic ' +
       'JOIN course_completions cc ON ic.completion_id = cc.id ' +
       'JOIN users u ON cc.user_id = u.id ' +
       'JOIN courses c ON cc.course_id = c.id ' +
@@ -305,14 +332,14 @@ router.get('/all', async (req, res) => {
 
 /**
  * POST /api/credentials/sync-all
- * Triggers batch Moodle sync for all registered users & courses
+ * Triggers batch Moodle sync for all registered users & courses, re-signing updated grades
  */
 router.post('/sync-all', async (req, res) => {
   try {
     const users = await db.query('SELECT moodle_user_id, name FROM users');
     const courses = await db.query('SELECT moodle_course_id, course_name FROM courses');
 
-    let issuedCount = 0;
+    let updatedCount = 0;
 
     for (const u of users) {
       for (const c of courses) {
@@ -322,7 +349,6 @@ router.post('/sync-all', async (req, res) => {
             const gradeData = await moodleService.fetchStudentGrade(u.moodle_user_id, c.moodle_course_id);
             const finalGrade = gradeData.grade;
 
-            // Fetch course details
             const courseRes = await db.query('SELECT * FROM courses WHERE moodle_course_id = ?', [c.moodle_course_id]);
             const userRes = await db.query('SELECT * FROM users WHERE moodle_user_id = ?', [u.moodle_user_id]);
 
@@ -330,7 +356,6 @@ router.post('/sync-all', async (req, res) => {
               const userObj = userRes[0];
               const courseObj = courseRes[0];
               const isEligible = finalGrade >= parseFloat(courseObj.passing_grade);
-
               const now = new Date().toISOString().slice(0, 19).replace('T', ' ');
               let completionId = null;
 
@@ -344,10 +369,11 @@ router.post('/sync-all', async (req, res) => {
               }
 
               if (isEligible) {
-                const existingCred = await db.query('SELECT id FROM issued_credentials WHERE completion_id = ?', [completionId]);
+                const existingCred = await db.query('SELECT id, credential_uuid FROM issued_credentials WHERE completion_id = ?', [completionId]);
+                const issuerDid = process.env.ISSUER_DID || 'did:web:onest.certplatform.com';
+
                 if (existingCred.length === 0) {
                   const credentialUuid = crypto.randomUUID();
-                  const issuerDid = process.env.ISSUER_DID || 'did:web:onest.certplatform.com';
                   const vcPayload = {
                     "@context": [
                       "https://www.w3.org/2018/credentials/v1",
@@ -369,7 +395,32 @@ router.post('/sync-all', async (req, res) => {
                   };
                   const jws = cryptoService.signES256(vcPayload);
                   await db.query('INSERT INTO issued_credentials (completion_id, credential_uuid, jws_signature, vc_payload) VALUES (?, ?, ?, ?)', [completionId, credentialUuid, jws, JSON.stringify(vcPayload)]);
-                  issuedCount++;
+                  updatedCount++;
+                } else {
+                  // UPDATE existing credential with revised Moodle grade & RE-SIGN
+                  const credentialUuid = existingCred[0].credential_uuid;
+                  const vcPayload = {
+                    "@context": [
+                      "https://www.w3.org/2018/credentials/v1",
+                      "https://schema.onest.network/credentials/v1"
+                    ],
+                    "id": `urn:uuid:${credentialUuid}`,
+                    "type": ["VerifiableCredential", "ONESTTrainingCredential"],
+                    "issuer": issuerDid,
+                    "issuanceDate": new Date().toISOString(),
+                    "credentialSubject": {
+                      "id": userObj.user_did,
+                      "studentName": userObj.name,
+                      "studentEmail": userObj.email,
+                      "courseName": courseObj.course_name,
+                      "moodleCourseId": courseObj.moodle_course_id,
+                      "gradeReported": `${finalGrade}%`,
+                      "status": "Pass"
+                    }
+                  };
+                  const jws = cryptoService.signES256(vcPayload);
+                  await db.query('UPDATE issued_credentials SET jws_signature = ?, vc_payload = ? WHERE completion_id = ?', [jws, JSON.stringify(vcPayload), completionId]);
+                  updatedCount++;
                 }
               }
             }
@@ -380,7 +431,7 @@ router.post('/sync-all', async (req, res) => {
       }
     }
 
-    return res.json({ success: true, message: `Batch sync complete! ${issuedCount} new certificates generated.` });
+    return res.json({ success: true, message: `Batch sync complete! ${updatedCount} certificates updated with latest Moodle grades.` });
   } catch (error) {
     console.error('Sync all error:', error);
     return res.status(500).json({ error: error.message });

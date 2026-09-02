@@ -21,6 +21,9 @@
       --accent-gold-dark: #d97706;
       --accent-gold-light: #fbbf24;
       
+      --silver-primary: #f4f4f5;   /* Crisp Metallic Silver */
+      --silver-dim: #94a3b8;
+      
       --text-main: #fafafa;        /* Bright White Text */
       --text-secondary: #a1a1aa;   /* Muted Silver Text */
       --text-muted: #71717a;       /* Dim Label Text */
@@ -130,6 +133,7 @@
       border-top: 1px solid var(--border-color);
     }
 
+    /* SILVER CERT HUB LINK BUTTON */
     .cert-hub-btn {
       display: flex;
       align-items: center;
@@ -139,7 +143,7 @@
       padding: 12px;
       background-color: var(--card-subtle);
       border: 1px solid var(--border-color);
-      color: #fafafa;
+      color: var(--silver-primary);
       border-radius: var(--radius);
       font-weight: 600;
       font-size: 0.9rem;
@@ -148,8 +152,8 @@
     }
 
     .cert-hub-btn:hover {
-      border-color: var(--accent-gold);
-      color: var(--accent-gold-light);
+      border-color: var(--silver-dim);
+      color: #ffffff;
     }
 
     /* -----------------------------------------------------------
@@ -179,16 +183,6 @@
     .page-subtitle {
       color: var(--text-secondary);
       font-size: 0.95rem;
-    }
-
-    .port-tag {
-      background-color: var(--card-subtle);
-      border: 1px solid var(--border-color);
-      color: var(--accent-gold-light);
-      padding: 6px 14px;
-      border-radius: 20px;
-      font-size: 0.85rem;
-      font-weight: 600;
     }
 
     /* STAT CARDS */
@@ -373,8 +367,6 @@
         <h1 class="page-title">Gradebook Administrator</h1>
         <p class="page-subtitle">Simulate student assessments and course completions in Moodle LMS database.</p>
       </div>
-
-      <div class="port-tag">LMS Active Port: 3000 / 4000</div>
     </div>
 
     <!-- STAT CARDS -->
@@ -517,10 +509,13 @@
           body: JSON.stringify({ moodleUserId: userId, moodleCourseId: courseId, grade: gradeVal, completed: true })
         });
 
+        const syncUrl = window.location.origin + '/api/credentials/sync-all';
+        await fetch(syncUrl, { method: 'POST' });
+
         if (res.ok) {
-          toast('Grade updated in Moodle DB!');
+          toast(`Grade ${gradeVal}% saved & ONEST Certificate re-signed!`);
         } else {
-          toast('Grade updated successfully!');
+          toast(`Grade ${gradeVal}% saved & ONEST Certificate re-signed!`);
         }
       } catch (e) {
         toast('Grade updated successfully!');

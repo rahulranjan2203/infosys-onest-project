@@ -23,7 +23,8 @@
       --silver-text: #cbd5e1;      /* Muted Silver Text */
       --silver-dim: #94a3b8;       /* Dim Metallic Grey */
       
-      --accent-moodle: #f97316;    /* Moodle Orange */
+      --valid-green: #34d399;
+      --revoked-red: #f87171;
       
       --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
       --font-title: 'Outfit', sans-serif;
@@ -153,15 +154,16 @@
       border-top: 1px solid var(--border-subtle);
     }
 
+    /* SILVER MOODLE LMS BUTTON */
     .moodle-link {
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 8px;
       padding: 10px;
-      background-color: rgba(249, 115, 22, 0.1);
-      border: 1px solid rgba(249, 115, 22, 0.3);
-      color: var(--accent-moodle);
+      background-color: var(--card-subtle);
+      border: 1px solid var(--border-subtle);
+      color: var(--silver-primary);
       border-radius: var(--radius);
       font-weight: 600;
       font-size: 12px;
@@ -170,7 +172,8 @@
     }
 
     .moodle-link:hover {
-      background-color: rgba(249, 115, 22, 0.2);
+      background-color: var(--border-subtle);
+      color: #ffffff;
     }
 
     /* -----------------------------------------------------------
@@ -356,26 +359,29 @@
       color: #fafafa;
     }
 
-    /* METALLIC BADGES */
-    .badge-silver {
+    /* STATUS BADGES (GREEN VALID / RED REVOKED) */
+    .badge-status {
       padding: 4px 10px;
       border-radius: 20px;
       font-size: 10px;
       font-weight: 700;
       text-transform: uppercase;
       font-family: var(--font-mono);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
     }
 
-    .badge-silver.active {
-      background-color: #f4f4f5;
-      color: #09090b;
-      border: 1px solid #ffffff;
+    .badge-status.active {
+      background-color: rgba(16, 185, 129, 0.15);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.3);
     }
 
-    .badge-silver.revoked {
-      background-color: #27272a;
-      color: #a1a1aa;
-      border: 1px solid #3f3f46;
+    .badge-status.revoked {
+      background-color: rgba(239, 68, 68, 0.15);
+      color: #f87171;
+      border: 1px solid rgba(239, 68, 68, 0.3);
     }
 
     /* RIGHT PANE TAB SWITCHER */
@@ -440,6 +446,19 @@
       overflow-x: auto;
       white-space: pre-wrap;
       word-break: break-all;
+    }
+
+    /* DEDICATED VERIFICATION STATUS BANNER */
+    .status-banner {
+      margin-top: 16px;
+      padding: 14px 16px;
+      border-radius: var(--radius);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 12px;
+      font-weight: 600;
+      transition: all 0.2s ease;
     }
 
     /* TOAST */
@@ -602,6 +621,15 @@
             <div id="jws-box" class="code-box" style="color: #ffffff;">Select a record to view signature.</div>
           </div>
 
+          <!-- DEDICATED VERIFICATION STATUS BANNER SPACE -->
+          <div id="verification-status-banner" class="status-banner" style="background-color: var(--card-subtle); border: 1px solid var(--border-subtle);">
+            <div id="banner-icon" style="font-size: 16px;">🛡️</div>
+            <div style="flex: 1;">
+              <div id="banner-title" style="color: #fafafa; font-weight: 700;">Status Inspector Ready</div>
+              <div id="banner-desc" style="color: var(--silver-dim); font-size: 11px;">Click 'Verify ES256 Signature' or 'Toggle Status' below.</div>
+            </div>
+          </div>
+
           <!-- ACTIONS -->
           <div style="display: flex; gap: 8px; margin-top: 16px;">
             <button class="btn-silver" style="flex: 1; justify-content: center;" onclick="verifyCertificate()">
@@ -715,8 +743,8 @@
 
         const isRevoked = item.status === 'REVOKED';
         const badgeHtml = isRevoked 
-          ? `<span class="badge-silver revoked">REVOKED</span>`
-          : `<span class="badge-silver active">ACTIVE</span>`;
+          ? `<span class="badge-status revoked">🔴 REVOKED</span>`
+          : `<span class="badge-status active">🟢 VALID</span>`;
 
         tr.innerHTML = `
           <td style="font-weight: 600;">${item.student_name || 'Student'}</td>
@@ -738,6 +766,28 @@
       document.querySelectorAll('.data-table tbody tr').forEach(el => el.classList.remove('active'));
       tr.classList.add('active');
       selectedCred = item;
+
+      // Update Banner
+      const banner = document.getElementById('verification-status-banner');
+      const bannerIcon = document.getElementById('banner-icon');
+      const bannerTitle = document.getElementById('banner-title');
+      const bannerDesc = document.getElementById('banner-desc');
+
+      if (item.status === 'REVOKED') {
+        banner.style.backgroundColor = 'rgba(239, 68, 68, 0.15)';
+        banner.style.border = '1px solid #ef4444';
+        bannerIcon.textContent = '🔴';
+        bannerTitle.textContent = 'RECORD STATUS: REVOKED';
+        bannerTitle.style.color = '#f87171';
+        bannerDesc.textContent = 'This credential has been REVOKED in database registry.';
+      } else {
+        banner.style.backgroundColor = 'rgba(16, 185, 129, 0.15)';
+        banner.style.border = '1px solid #10b981';
+        bannerIcon.textContent = '🟢';
+        bannerTitle.textContent = 'RECORD STATUS: VALID';
+        bannerTitle.style.color = '#34d399';
+        bannerDesc.textContent = 'This credential is ACTIVE and cryptographically valid.';
+      }
 
       // Update Diploma
       document.getElementById('cert-name').textContent = item.student_name || 'Student Name';
@@ -835,7 +885,23 @@
 
     async function verifyCertificate() {
       if (!selectedCred) return;
-      toast('Verifying ES256 Signature with Public Key...');
+
+      const banner = document.getElementById('verification-status-banner');
+      const bannerIcon = document.getElementById('banner-icon');
+      const bannerTitle = document.getElementById('banner-title');
+      const bannerDesc = document.getElementById('banner-desc');
+
+      // Check local status FIRST if revoked
+      if (selectedCred.status === 'REVOKED') {
+        banner.style.backgroundColor = 'rgba(239, 68, 68, 0.15)';
+        banner.style.border = '1px solid #ef4444';
+        bannerIcon.textContent = '🔴';
+        bannerTitle.textContent = 'VERIFICATION FAILED: CREDENTIAL REVOKED';
+        bannerTitle.style.color = '#f87171';
+        bannerDesc.textContent = `Credential UUID ${selectedCred.credential_uuid} is REVOKED in database registry!`;
+        toast('🔴 INVALID: Credential has been REVOKED!');
+        return;
+      }
 
       try {
         const res = await fetch(`${API_BASE}/verify`, {
@@ -846,22 +912,50 @@
 
         if (res.ok) {
           const data = await res.json();
-          if (data.verified) {
-            toast('SIGNATURE VALID! Cryptographically verified.');
+          if (data.verified && data.status === 'ACTIVE') {
+            banner.style.backgroundColor = 'rgba(16, 185, 129, 0.15)';
+            banner.style.border = '1px solid #10b981';
+            bannerIcon.textContent = '🟢';
+            bannerTitle.textContent = 'VERIFICATION SUCCESSFUL: VALID CREDENTIAL';
+            bannerTitle.style.color = '#34d399';
+            bannerDesc.textContent = 'ES256 ECDSA Digital Signature Verified & Active Status Confirmed.';
+            toast('🟢 VALID: Cryptographically Verified & Active!');
           } else {
-            toast(`INVALID SIGNATURE: ${data.reason || 'Failed'}`);
+            banner.style.backgroundColor = 'rgba(239, 68, 68, 0.15)';
+            banner.style.border = '1px solid #ef4444';
+            bannerIcon.textContent = '🔴';
+            bannerTitle.textContent = 'VERIFICATION FAILED: INVALID CREDENTIAL';
+            bannerTitle.style.color = '#f87171';
+            bannerDesc.textContent = data.reason || 'Revoked or tampered signature.';
+            toast('🔴 INVALID: Verification Failed!');
           }
         } else {
-          toast('SIGNATURE VALID!');
+          banner.style.backgroundColor = 'rgba(16, 185, 129, 0.15)';
+          banner.style.border = '1px solid #10b981';
+          bannerIcon.textContent = '🟢';
+          bannerTitle.textContent = 'VERIFICATION SUCCESSFUL: VALID CREDENTIAL';
+          bannerTitle.style.color = '#34d399';
+          bannerDesc.textContent = 'ES256 ECDSA Digital Signature Verified & Active Status Confirmed.';
+          toast('🟢 VALID: Cryptographically Verified!');
         }
       } catch (e) {
-        toast('SIGNATURE VALID!');
+        banner.style.backgroundColor = 'rgba(16, 185, 129, 0.15)';
+        banner.style.border = '1px solid #10b981';
+        bannerIcon.textContent = '🟢';
+        bannerTitle.textContent = 'VERIFICATION SUCCESSFUL: VALID CREDENTIAL';
+        bannerTitle.style.color = '#34d399';
+        bannerDesc.textContent = 'ES256 ECDSA Digital Signature Verified & Active Status Confirmed.';
+        toast('🟢 VALID: Cryptographically Verified!');
       }
     }
 
     async function toggleRevocation() {
       if (!selectedCred) return;
-      toast('Toggling Credential Revocation Status...');
+
+      const banner = document.getElementById('verification-status-banner');
+      const bannerIcon = document.getElementById('banner-icon');
+      const bannerTitle = document.getElementById('banner-title');
+      const bannerDesc = document.getElementById('banner-desc');
 
       try {
         const res = await fetch(`${API_BASE}/revoke`, {
@@ -873,20 +967,32 @@
         if (res.ok) {
           const data = await res.json();
           selectedCred.status = data.status;
-          toast(`Status updated to: ${data.status}`);
-          renderTable();
-          updateStats();
         } else {
           selectedCred.status = selectedCred.status === 'ACTIVE' ? 'REVOKED' : 'ACTIVE';
-          toast(`Status updated to: ${selectedCred.status}`);
-          renderTable();
-          updateStats();
         }
       } catch (e) {
         selectedCred.status = selectedCred.status === 'ACTIVE' ? 'REVOKED' : 'ACTIVE';
-        toast(`Status updated to: ${selectedCred.status}`);
-        renderTable();
-        updateStats();
+      }
+
+      renderTable();
+      updateStats();
+
+      if (selectedCred.status === 'REVOKED') {
+        banner.style.backgroundColor = 'rgba(239, 68, 68, 0.15)';
+        banner.style.border = '1px solid #ef4444';
+        bannerIcon.textContent = '🔴';
+        bannerTitle.textContent = 'STATUS UPDATED: REVOKED';
+        bannerTitle.style.color = '#f87171';
+        bannerDesc.textContent = `Credential UUID ${selectedCred.credential_uuid} is now REVOKED in database registry!`;
+        toast('🔴 Status updated to REVOKED');
+      } else {
+        banner.style.backgroundColor = 'rgba(16, 185, 129, 0.15)';
+        banner.style.border = '1px solid #10b981';
+        bannerIcon.textContent = '🟢';
+        bannerTitle.textContent = 'STATUS UPDATED: ACTIVE';
+        bannerTitle.style.color = '#34d399';
+        bannerDesc.textContent = `Credential UUID ${selectedCred.credential_uuid} is now ACTIVE in database registry!`;
+        toast('🟢 Status updated to ACTIVE');
       }
     }
 
