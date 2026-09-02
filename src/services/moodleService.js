@@ -6,7 +6,7 @@ function getMoodleApiUrl() {
 }
 
 function getMoodleToken() {
-  return process.env.MOODLE_TOKEN || 'MOCK_MOODLE_TOKEN_123';
+  return process.env.MOODLE_TOKEN || 'mock_moodle_api_token_12345';
 }
 
 /**

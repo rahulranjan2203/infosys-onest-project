@@ -96,8 +96,9 @@ async function startServer() {
       console.log(`[MOODLE LMS]   Available at http://localhost:${PORT}/moodle`);
     });
 
-    // D. Listen Moodle Port if specified and different from PORT
-    if (MOODLE_PORT && String(MOODLE_PORT) !== String(PORT) && !process.env.SINGLE_PORT) {
+    // D. Listen Moodle Port if specified and different from PORT (only in local dual-port mode)
+    const isCloudEnv = process.env.NODE_ENV === 'production' || process.env.RENDER || process.env.IS_RENDER;
+    if (MOODLE_PORT && String(MOODLE_PORT) !== String(PORT) && !isCloudEnv && !process.env.SINGLE_PORT) {
       moodleServer = moodleApp.listen(MOODLE_PORT, () => {
         console.log(`[MOODLE LMS Simulator] Running on http://localhost:${MOODLE_PORT}`);
       });
