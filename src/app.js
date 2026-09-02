@@ -45,8 +45,14 @@ onestApp.get('/api/health', (req, res) => {
 onestApp.use('/api/credentials', credentialRoutes);
 
 // =========================================================================
-// 2. MOODLE LMS SIMULATOR SERVER (Port 4000)
+// 2. MOODLE LMS SIMULATOR SERVER & ROUTES
 // =========================================================================
+// Mount Moodle Portal & Mock API on onestApp for single-port / cloud deployment
+onestApp.get('/moodle', (req, res) => {
+  res.sendFile(path.join(__dirname, '../moodle.html'));
+});
+onestApp.use('/mock-moodle', mockMoodleRoutes);
+
 const moodleApp = express();
 
 moodleApp.use((req, res, next) => {
@@ -67,7 +73,7 @@ moodleApp.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, '../moodle.html'));
 });
 
-// Serve Moodle LMS API Endpoints (called by ONSET backend)
+// Serve Moodle LMS API Endpoints (called by ONEST backend)
 moodleApp.use('/mock-moodle', mockMoodleRoutes);
 
 // =========================================================================
@@ -81,18 +87,21 @@ async function startServer() {
     // A. Migrate and Seed Database
     await initializeDatabase();
 
-    // B. Initialize Cryto Keys
+    // B. Initialize Crypto Keys
     cryptoService.initKeys();
 
     // C. Listen ONEST Port
     onestServer = onestApp.listen(PORT, () => {
       console.log(`[ONEST PORTAL] Running on http://localhost:${PORT}`);
+      console.log(`[MOODLE LMS]   Available at http://localhost:${PORT}/moodle`);
     });
 
-    // D. Listen Moodle Port
-    moodleServer = moodleApp.listen(MOODLE_PORT, () => {
-      console.log(`[MOODLE LMS]   Running on http://localhost:${MOODLE_PORT}`);
-    });
+    // D. Listen Moodle Port if specified and different from PORT
+    if (MOODLE_PORT && String(MOODLE_PORT) !== String(PORT) && !process.env.SINGLE_PORT) {
+      moodleServer = moodleApp.listen(MOODLE_PORT, () => {
+        console.log(`[MOODLE LMS Simulator] Running on http://localhost:${MOODLE_PORT}`);
+      });
+    }
 
   } catch (error) {
     console.error('Failed to start server:', error);

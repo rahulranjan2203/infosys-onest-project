@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: onest-cert-hub-backend
+    env: node
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DB_TYPE
+        value: sqlite
+      - key: PORT
+        value: 10000

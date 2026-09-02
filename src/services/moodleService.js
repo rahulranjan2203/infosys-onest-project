@@ -1,15 +1,20 @@
 const dotenv = require('dotenv');
 dotenv.config();
 
-const MOODLE_API_URL = process.env.MOODLE_API_URL;
-const MOODLE_TOKEN = process.env.MOODLE_TOKEN;
+function getMoodleApiUrl() {
+  return process.env.MOODLE_API_URL || `http://localhost:${process.env.PORT || 3000}/mock-moodle`;
+}
+
+function getMoodleToken() {
+  return process.env.MOODLE_TOKEN || 'MOCK_MOODLE_TOKEN_123';
+}
 
 /**
  * Fetches course completion status for a student from Moodle REST API
  */
 async function fetchCourseCompletion(moodleUserId, moodleCourseId) {
   const wsFunction = 'core_completion_get_course_completion_status';
-  const url = `${MOODLE_API_URL}?wstoken=${MOODLE_TOKEN}&wsfunction=${wsFunction}&moodlewsrestformat=json&userid=${moodleUserId}&courseid=${moodleCourseId}`;
+  const url = `${getMoodleApiUrl()}?wstoken=${getMoodleToken()}&wsfunction=${wsFunction}&moodlewsrestformat=json&userid=${moodleUserId}&courseid=${moodleCourseId}`;
 
   try {
     const response = await fetch(url);
@@ -36,7 +41,7 @@ async function fetchCourseCompletion(moodleUserId, moodleCourseId) {
 async function fetchStudentGrade(moodleUserId, moodleCourseId) {
   const wsFunction = 'core_grades_get_grades';
   // Moodle requires userids parameter as an array format: userids[0]=val
-  const url = `${MOODLE_API_URL}?wstoken=${MOODLE_TOKEN}&wsfunction=${wsFunction}&moodlewsrestformat=json&courseid=${moodleCourseId}&userids[0]=${moodleUserId}`;
+  const url = `${getMoodleApiUrl()}?wstoken=${getMoodleToken()}&wsfunction=${wsFunction}&moodlewsrestformat=json&courseid=${moodleCourseId}&userids[0]=${moodleUserId}`;
 
   try {
     const response = await fetch(url);
