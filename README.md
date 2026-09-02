@@ -93,6 +93,9 @@ Traditionally, academic and professional certificates are trapped in isolated Le
 7. **Verification**: Employer or external verifiers validate the signature using the issuer's public key (`did:web:onest.certplatform.com`) and check database status.
 
 ---
+<img width="1573" height="1000" alt="archiecture_onest" src="https://github.com/user-attachments/assets/d729a657-6573-440f-bfd4-97ae0341cb6b" />
+
+
 
 ## 4. W3C Verifiable Credential Payload Example
 
