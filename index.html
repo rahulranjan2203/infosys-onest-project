@@ -11,7 +11,7 @@
   
   <style>
     :root {
-      /* Metallic Black & Silver Enterprise Color Palette */
+      /* Metallic Black & Silver Color System */
       --bg-black: #09090b;         /* Rich Deep Black */
       --card-bg: #141417;          /* Charcoal Panel Surface */
       --card-subtle: #1c1c21;      /* Secondary Input/Hover */
@@ -23,7 +23,7 @@
       --silver-text: #cbd5e1;      /* Muted Silver Text */
       --silver-dim: #94a3b8;       /* Dim Metallic Grey */
       
-      --accent-moodle: #f97316;    /* Moodle Orange for LMS Link */
+      --accent-moodle: #f97316;    /* Moodle Orange */
       
       --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
       --font-title: 'Outfit', sans-serif;
@@ -174,7 +174,7 @@
     }
 
     /* -----------------------------------------------------------
-      MAIN DASHBOARD WORKSPACE
+      MAIN WORKSPACE
     ----------------------------------------------------------- */
     .main-workspace {
       margin-left: 250px;
@@ -356,7 +356,7 @@
       color: #fafafa;
     }
 
-    /* METALLIC BADGES (NO GREEN) */
+    /* METALLIC BADGES */
     .badge-silver {
       padding: 4px 10px;
       border-radius: 20px;
@@ -442,53 +442,7 @@
       word-break: break-all;
     }
 
-    /* -----------------------------------------------------------
-      TOSHIBA SPECIFICATION TAB STYLING
-    ----------------------------------------------------------- */
-    .spec-card {
-      background-color: var(--card-bg);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius);
-      padding: 24px;
-      margin-bottom: 20px;
-    }
-
-    .spec-header {
-      font-size: 16px;
-      font-weight: 700;
-      color: #fafafa;
-      margin-bottom: 12px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .spec-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 16px;
-    }
-
-    .spec-box {
-      background-color: var(--bg-black);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius);
-      padding: 16px;
-    }
-
-    .spec-box h4 {
-      font-size: 13px;
-      color: var(--silver-primary);
-      margin-bottom: 6px;
-    }
-
-    .spec-box p {
-      font-size: 12px;
-      color: var(--silver-text);
-      line-height: 1.5;
-    }
-
-    /* TOAST NOTIFICATION */
+    /* TOAST */
     #toast-box {
       position: fixed;
       bottom: 24px;
@@ -536,11 +490,6 @@
       <button class="nav-btn" onclick="switchMainView('login')">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
         LMS Student Login
-      </button>
-
-      <button class="nav-btn" onclick="switchMainView('toshiba')">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-        Toshiba Spec Guide
       </button>
 
     </nav>
@@ -697,48 +646,6 @@
       </div>
     </div>
 
-    <!-- -----------------------------------------------------------
-      VIEW 3: TOSHIBA INTERVIEW SPECIFICATION GUIDE
-    ----------------------------------------------------------- -->
-    <div id="view-toshiba" class="view-panel">
-      
-      <div class="spec-card">
-        <div class="spec-header">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-          Toshiba Interview Project Overview (2-Minute Teach)
-        </div>
-        <p style="color: var(--silver-text); font-size: 13px; line-height: 1.6;">
-          <strong>Passport Analogy:</strong> Traditional certificates are like custom club membership cards locked inside individual LMS silos. Sharing them requires slow, manual human validation. Our ONEST platform turns custom club cards into secure, globally recognized digital "passports" signed cryptographically with ES256 signatures, allowing employers to verify certificates instantly without contacting the issuing university.
-        </p>
-      </div>
-
-      <div class="spec-grid">
-        
-        <div class="spec-card">
-          <div class="spec-header">ES256 Elliptic Curve Verification Math</div>
-          <div class="code-box" style="font-size: 10px; color: #fafafa;">
-            Signature Pair: (r, s)<br>
-            w = s⁻¹ mod n<br>
-            u₁ = (Hash(Payload) · w) mod n<br>
-            u₂ = (r · w) mod n<br>
-            Curve Point: (x₁, y₁) = u₁·G + u₂·Q<br>
-            VERDICT: x₁ ≡ r mod n ➔ Mathematically Valid!
-          </div>
-        </div>
-
-        <div class="spec-card">
-          <div class="spec-header">Toshiba Firmware Validation Connection</div>
-          <div style="font-size: 12px; color: var(--silver-text); line-height: 1.6;">
-            <strong>1. Secure Boot Alignment:</strong> Validating ES256 signatures uses the exact same cryptographic principles as hardware Secure Boot verification in microcontrollers.<br>
-            <strong>2. Specification Compliance:</strong> Implementing W3C specs mapped data to rigid protocol standards—a skill directly applicable to hardware datasheet testing.<br>
-            <strong>3. Boundary & API Testing:</strong> Designing test suites for malformed payloads and network timeouts mirrors hardware register state testing under fault conditions.
-          </div>
-        </div>
-
-      </div>
-
-    </div>
-
   </main>
 
   <div id="toast-box"></div>
@@ -892,13 +799,11 @@
 
       const titleMap = {
         'workspace': 'Verification Hub',
-        'login': 'LMS Student Login',
-        'toshiba': 'Toshiba Interview Specification Guide'
+        'login': 'LMS Student Login'
       };
       const descMap = {
         'workspace': 'W3C Verifiable Credentials issued via Moodle LMS API & ES256 Signatures.',
-        'login': 'Authenticate active LMS session credentials to query decentralized IDs.',
-        'toshiba': 'Comprehensive technical reference mapping ONEST platform to Toshiba Firmware Validation.'
+        'login': 'Authenticate active LMS session credentials to query decentralized IDs.'
       };
 
       document.getElementById('view-title').textContent = titleMap[viewName] || 'Console';
