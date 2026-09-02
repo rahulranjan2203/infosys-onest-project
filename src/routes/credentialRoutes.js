@@ -282,4 +282,109 @@ router.post('/revoke', async (req, res) => {
   }
 });
 
+/**
+ * GET /api/credentials/all
+ * Retrieves all issued credentials joined with student & course details
+ */
+router.get('/all', async (req, res) => {
+  try {
+    const results = await db.query(
+      'SELECT ic.*, u.name as student_name, u.email as student_email, u.user_did, c.course_name, cc.grade ' +
+      'FROM issued_credentials ic ' +
+      'JOIN course_completions cc ON ic.completion_id = cc.id ' +
+      'JOIN users u ON cc.user_id = u.id ' +
+      'JOIN courses c ON cc.course_id = c.id ' +
+      'ORDER BY ic.issued_at DESC'
+    );
+    return res.json(results);
+  } catch (error) {
+    console.error('Fetch all credentials error:', error);
+    return res.status(500).json({ error: 'Database error fetching credentials.' });
+  }
+});
+
+/**
+ * POST /api/credentials/sync-all
+ * Triggers batch Moodle sync for all registered users & courses
+ */
+router.post('/sync-all', async (req, res) => {
+  try {
+    const users = await db.query('SELECT moodle_user_id, name FROM users');
+    const courses = await db.query('SELECT moodle_course_id, course_name FROM courses');
+
+    let issuedCount = 0;
+
+    for (const u of users) {
+      for (const c of courses) {
+        try {
+          const completionData = await moodleService.fetchCourseCompletion(u.moodle_user_id, c.moodle_course_id);
+          if (completionData.completionstatus && completionData.completionstatus.completed) {
+            const gradeData = await moodleService.fetchStudentGrade(u.moodle_user_id, c.moodle_course_id);
+            const finalGrade = gradeData.grade;
+
+            // Fetch course details
+            const courseRes = await db.query('SELECT * FROM courses WHERE moodle_course_id = ?', [c.moodle_course_id]);
+            const userRes = await db.query('SELECT * FROM users WHERE moodle_user_id = ?', [u.moodle_user_id]);
+
+            if (courseRes.length > 0 && userRes.length > 0) {
+              const userObj = userRes[0];
+              const courseObj = courseRes[0];
+              const isEligible = finalGrade >= parseFloat(courseObj.passing_grade);
+
+              const now = new Date().toISOString().slice(0, 19).replace('T', ' ');
+              let completionId = null;
+
+              const existingComp = await db.query('SELECT id FROM course_completions WHERE user_id = ? AND course_id = ?', [userObj.id, courseObj.id]);
+              if (existingComp.length > 0) {
+                completionId = existingComp[0].id;
+                await db.query('UPDATE course_completions SET grade = ?, completed_at = ?, is_eligible = ? WHERE id = ?', [finalGrade, now, isEligible ? 1 : 0, completionId]);
+              } else {
+                const ins = await db.query('INSERT INTO course_completions (user_id, course_id, grade, completed_at, is_eligible) VALUES (?, ?, ?, ?, ?)', [userObj.id, courseObj.id, finalGrade, now, isEligible ? 1 : 0]);
+                completionId = ins.insertId;
+              }
+
+              if (isEligible) {
+                const existingCred = await db.query('SELECT id FROM issued_credentials WHERE completion_id = ?', [completionId]);
+                if (existingCred.length === 0) {
+                  const credentialUuid = crypto.randomUUID();
+                  const issuerDid = process.env.ISSUER_DID || 'did:web:onest.certplatform.com';
+                  const vcPayload = {
+                    "@context": [
+                      "https://www.w3.org/2018/credentials/v1",
+                      "https://schema.onest.network/credentials/v1"
+                    ],
+                    "id": `urn:uuid:${credentialUuid}`,
+                    "type": ["VerifiableCredential", "ONESTTrainingCredential"],
+                    "issuer": issuerDid,
+                    "issuanceDate": new Date().toISOString(),
+                    "credentialSubject": {
+                      "id": userObj.user_did,
+                      "studentName": userObj.name,
+                      "studentEmail": userObj.email,
+                      "courseName": courseObj.course_name,
+                      "moodleCourseId": courseObj.moodle_course_id,
+                      "gradeReported": `${finalGrade}%`,
+                      "status": "Pass"
+                    }
+                  };
+                  const jws = cryptoService.signES256(vcPayload);
+                  await db.query('INSERT INTO issued_credentials (completion_id, credential_uuid, jws_signature, vc_payload) VALUES (?, ?, ?, ?)', [completionId, credentialUuid, jws, JSON.stringify(vcPayload)]);
+                  issuedCount++;
+                }
+              }
+            }
+          }
+        } catch (e) {
+          // Ignore individual sync errors
+        }
+      }
+    }
+
+    return res.json({ success: true, message: `Batch sync complete! ${issuedCount} new certificates generated.` });
+  } catch (error) {
+    console.error('Sync all error:', error);
+    return res.status(500).json({ error: error.message });
+  }
+});
+
 module.exports = router;

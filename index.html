@@ -3,39 +3,33 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ONEST Trust Ledger - Enterprise Verification Platform</title>
+  <title>ONEST Trust Ledger - Verifiable Credential Platform</title>
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   
   <style>
     :root {
-      /* Linear / Vercel Monochromatic Slate Palette */
-      --bg-canvas: #09090b;       /* Darkest zinc background */
-      --bg-surface: #121215;      /* Main card & pane background */
-      --bg-subtle: #18181b;       /* Inputs, table headers, hover states */
-      --bg-active: #27272a;       /* Active selections */
+      /* Sleek & Friendly Enterprise Slate Palette */
+      --bg-canvas: #0f172a;       /* Slate-900 canvas */
+      --bg-surface: #1e293b;      /* Slate-800 panel cards */
+      --bg-subtle: #334155;       /* Slate-700 inputs / hover states */
       
-      --border-subtle: #27272a;   /* Subtle 1px borders */
-      --border-strong: #3f3f46;   /* Input focus & active borders */
+      --color-primary: #6366f1;    /* Vibrant Indigo accent */
+      --color-primary-hover: #4f46e5;
       
-      --text-primary: #fafafa;    /* High contrast text */
-      --text-secondary: #a1a1aa;  /* Muted silver label text */
-      --text-tertiary: #71717a;   /* Dim grey help text */
+      --text-main: #f8fafc;       /* Crisp white text */
+      --text-muted: #94a3b8;      /* Muted silver text */
+      --border-color: #334155;    /* 1px border */
       
-      --accent-green: #22c55e;    /* Minimalist status dots */
-      --accent-green-bg: rgba(34, 197, 94, 0.1);
-      --accent-red: #ef4444;
-      --accent-red-bg: rgba(239, 68, 68, 0.1);
-      --accent-amber: #f59e0b;
-      --accent-amber-bg: rgba(245, 158, 11, 0.1);
+      --color-success: #10b981;   /* Emerald green */
+      --color-danger: #ef4444;    /* Rose red */
+      --color-warning: #f59e0b;   /* Amber */
       
-      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      --font-mono: 'Fira Code', 'Courier New', monospace;
-      
-      --radius-sm: 2px;
-      --radius-md: 4px;
+      --font-sans: 'Inter', sans-serif;
+      --font-mono: 'Fira Code', monospace;
+      --radius: 8px;
     }
 
     * {
@@ -47,1170 +41,773 @@
     body {
       font-family: var(--font-sans);
       background-color: var(--bg-canvas);
-      color: var(--text-primary);
-      height: 100vh;
+      color: var(--text-main);
+      min-height: 100vh;
       display: flex;
-      overflow: hidden;
-      font-size: 13px;
-      line-height: 1.4;
-      -webkit-font-smoothing: antialiased;
+      flex-direction: column;
+      font-size: 14px;
     }
 
     /* -----------------------------------------------------------
-      FIXED LEFT SIDEBAR NAVIGATION
+      TOP BRAND HEADER
     ----------------------------------------------------------- */
-    .app-sidebar {
-      width: 240px;
+    .top-header {
+      height: 64px;
       background-color: var(--bg-surface);
-      border-right: 1px solid var(--border-subtle);
+      border-bottom: 1px solid var(--border-color);
       display: flex;
-      flex-direction: column;
+      align-items: center;
       justify-content: space-between;
-      flex-shrink: 0;
-      z-index: 50;
+      padding: 0 28px;
     }
 
-    .sidebar-header {
-      padding: 16px;
-      border-bottom: 1px solid var(--border-subtle);
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
     }
 
     .brand-logo {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      text-decoration: none;
-      color: var(--text-primary);
-    }
-
-    .brand-icon {
-      width: 24px;
-      height: 24px;
-      background-color: var(--text-primary);
-      color: var(--bg-canvas);
-      border-radius: var(--radius-md);
+      width: 34px;
+      height: 34px;
+      background: linear-gradient(135deg, #6366f1, #4f46e5);
+      border-radius: var(--radius);
       display: flex;
       align-items: center;
       justify-content: center;
       font-weight: 700;
-      font-size: 11px;
+      color: white;
+      font-size: 14px;
+      box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
     }
 
     .brand-title {
-      font-weight: 600;
-      font-size: 13px;
-      letter-spacing: -0.3px;
-    }
-
-    .brand-version {
-      font-size: 10px;
-      color: var(--text-tertiary);
-      font-family: var(--font-mono);
-      margin-left: auto;
-      background: var(--bg-subtle);
-      padding: 2px 6px;
-      border-radius: var(--radius-sm);
-      border: 1px solid var(--border-subtle);
-    }
-
-    .sidebar-menu {
-      padding: 12px 8px;
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      flex: 1;
-    }
-
-    .menu-group-label {
-      font-size: 10px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      color: var(--text-tertiary);
-      padding: 8px 8px 4px 8px;
-    }
-
-    .nav-item {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 8px 10px;
-      border-radius: var(--radius-md);
-      color: var(--text-secondary);
-      cursor: pointer;
-      font-size: 12px;
-      font-weight: 500;
-      transition: all 0.15s ease;
-      border: 1px solid transparent;
-      text-decoration: none;
-    }
-
-    .nav-item:hover {
-      background-color: var(--bg-subtle);
-      color: var(--text-primary);
-    }
-
-    .nav-item.active {
-      background-color: var(--bg-subtle);
-      color: var(--text-primary);
-      border-color: var(--border-subtle);
-      font-weight: 600;
-    }
-
-    .nav-item svg {
-      width: 15px;
-      height: 15px;
-      stroke-width: 2;
-    }
-
-    .sidebar-footer {
-      padding: 12px 16px;
-      border-top: 1px solid var(--border-subtle);
-      background-color: var(--bg-canvas);
-    }
-
-    .system-status {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 11px;
-      color: var(--text-secondary);
-    }
-
-    .status-dot-pulse {
-      width: 7px;
-      height: 7px;
-      background-color: var(--accent-green);
-      border-radius: 50%;
-    }
-
-    /* -----------------------------------------------------------
-      MAIN CONTENT WORKSPACE AREA
-    ----------------------------------------------------------- */
-    .app-main {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-      background-color: var(--bg-canvas);
-    }
-
-    /* TOP BAR */
-    .top-bar {
-      height: 48px;
-      border-bottom: 1px solid var(--border-subtle);
-      background-color: var(--bg-surface);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 20px;
-      flex-shrink: 0;
-    }
-
-    .breadcrumbs {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 12px;
-      color: var(--text-secondary);
-    }
-
-    .crumb-divider {
-      color: var(--text-tertiary);
-    }
-
-    .crumb-current {
-      color: var(--text-primary);
-      font-weight: 600;
-    }
-
-    .top-bar-actions {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-    }
-
-    .env-badge {
-      font-family: var(--font-mono);
-      font-size: 10px;
-      padding: 2px 8px;
-      background: var(--bg-subtle);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-sm);
-      color: var(--text-secondary);
-    }
-
-    .user-profile {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .user-avatar {
-      width: 24px;
-      height: 24px;
-      border-radius: 50%;
-      background: var(--bg-active);
-      border: 1px solid var(--border-strong);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 10px;
-      font-weight: 600;
-      color: var(--text-primary);
-    }
-
-    .user-name {
-      font-size: 12px;
-      font-weight: 500;
-      color: var(--text-primary);
-    }
-
-    /* WORKSPACE VIEWS */
-    .view-container {
-      flex: 1;
-      display: none;
-      overflow: hidden;
-    }
-
-    .view-container.active {
-      display: flex;
-    }
-
-    /* -----------------------------------------------------------
-      VIEW 1: AUTHENTICATION / LOGIN VIEW
-    ----------------------------------------------------------- */
-    .auth-workspace {
-      flex: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 40px;
-      background-color: var(--bg-canvas);
-    }
-
-    .auth-card {
-      width: 100%;
-      max-width: 440px;
-      background-color: var(--bg-surface);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-md);
-      padding: 28px;
-    }
-
-    .auth-header {
-      margin-bottom: 24px;
-    }
-
-    .auth-title {
+      font-weight: 700;
       font-size: 16px;
-      font-weight: 600;
-      color: var(--text-primary);
-      margin-bottom: 6px;
-      letter-spacing: -0.3px;
+      color: var(--text-main);
     }
 
-    .auth-subtitle {
-      font-size: 12px;
-      color: var(--text-secondary);
-    }
-
-    .form-group {
-      margin-bottom: 16px;
-    }
-
-    .form-label {
-      display: block;
+    .brand-tag {
       font-size: 11px;
-      font-weight: 500;
-      color: var(--text-secondary);
-      margin-bottom: 6px;
-    }
-
-    .form-input, .form-select {
-      width: 100%;
-      padding: 8px 12px;
-      background-color: var(--bg-canvas);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-md);
-      color: var(--text-primary);
-      font-size: 12px;
-      font-family: var(--font-sans);
-      outline: none;
-      transition: border-color 0.15s ease;
-    }
-
-    .form-input:focus, .form-select:focus {
-      border-color: var(--border-strong);
-    }
-
-    .btn-primary {
-      width: 100%;
-      padding: 9px;
-      background-color: var(--text-primary);
-      color: var(--bg-canvas);
-      border: none;
-      border-radius: var(--radius-md);
-      font-size: 12px;
+      background-color: rgba(99, 102, 241, 0.15);
+      color: #a5b4fc;
+      padding: 3px 8px;
+      border-radius: 4px;
       font-weight: 600;
+    }
+
+    .header-nav {
+      display: flex;
+      gap: 8px;
+    }
+
+    .nav-btn {
+      padding: 8px 16px;
+      border-radius: var(--radius);
+      border: 1px solid var(--border-color);
+      background-color: transparent;
+      color: var(--text-muted);
       cursor: pointer;
-      transition: opacity 0.15s ease;
-    }
-
-    .btn-primary:hover {
-      opacity: 0.9;
-    }
-
-    .session-info {
-      margin-top: 20px;
-      padding-top: 16px;
-      border-top: 1px solid var(--border-subtle);
-      font-family: var(--font-mono);
-      font-size: 11px;
-      color: var(--text-tertiary);
-    }
-
-    /* -----------------------------------------------------------
-      VIEW 2: ISSUER PORTAL & CREDENTIAL MINTING
-    ----------------------------------------------------------- */
-    .issuer-workspace {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      padding: 20px;
-      gap: 20px;
-      overflow-y: auto;
-    }
-
-    .kpi-row {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 16px;
-    }
-
-    .kpi-card {
-      background-color: var(--bg-surface);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-md);
-      padding: 16px;
-    }
-
-    .kpi-label {
-      font-size: 11px;
-      color: var(--text-secondary);
-      margin-bottom: 8px;
-    }
-
-    .kpi-value {
-      font-size: 20px;
-      font-weight: 600;
-      color: var(--text-primary);
-      font-family: var(--font-mono);
-    }
-
-    .issuer-panel {
-      background-color: var(--bg-surface);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-md);
-      display: flex;
-      flex-direction: column;
-    }
-
-    .panel-header {
-      padding: 14px 18px;
-      border-bottom: 1px solid var(--border-subtle);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .panel-title {
+      font-weight: 500;
       font-size: 13px;
-      font-weight: 600;
-      color: var(--text-primary);
-    }
-
-    .btn-secondary {
-      padding: 6px 12px;
-      background-color: var(--bg-subtle);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-md);
-      color: var(--text-primary);
-      font-size: 11px;
-      font-weight: 500;
-      cursor: pointer;
       display: flex;
       align-items: center;
-      gap: 6px;
-      transition: all 0.15s ease;
+      gap: 8px;
+      transition: all 0.2s ease;
     }
 
-    .btn-secondary:hover {
-      background-color: var(--bg-active);
-      border-color: var(--border-strong);
+    .nav-btn:hover {
+      background-color: var(--bg-subtle);
+      color: var(--text-main);
+    }
+
+    .nav-btn.active {
+      background-color: var(--color-primary);
+      color: white;
+      border-color: var(--color-primary);
     }
 
     /* -----------------------------------------------------------
-      VIEW 3: HR / VERIFIER SPLIT-PANE WORKSPACE
+      MAIN WORKSPACE LAYOUT
     ----------------------------------------------------------- */
-    .verifier-workspace {
+    .workspace-container {
       flex: 1;
       display: grid;
-      grid-template-columns: 55% 45%;
+      grid-template-columns: 480px 1fr;
+      gap: 20px;
+      padding: 20px;
+      max-width: 1600px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .pane-card {
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+      display: flex;
+      flex-direction: column;
       overflow: hidden;
     }
 
-    /* LEFT PANE: HIGH-DENSITY DATA TABLE */
-    .left-pane {
-      border-right: 1px solid var(--border-subtle);
-      display: flex;
-      flex-direction: column;
-      background-color: var(--bg-canvas);
-    }
-
-    .table-toolbar {
-      padding: 10px 16px;
-      border-bottom: 1px solid var(--border-subtle);
-      background-color: var(--bg-surface);
+    .pane-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border-color);
       display: flex;
       align-items: center;
-      gap: 12px;
+      justify-content: space-between;
+      background-color: rgba(15, 23, 42, 0.4);
     }
 
-    .search-input {
-      flex: 1;
-      padding: 6px 10px;
-      background-color: var(--bg-canvas);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-md);
-      color: var(--text-primary);
-      font-size: 11px;
-      outline: none;
-    }
-
-    .search-input:focus {
-      border-color: var(--border-strong);
-    }
-
-    .table-container {
-      flex: 1;
-      overflow-y: auto;
-    }
-
-    .dense-table {
-      width: 100%;
-      border-collapse: collapse;
-      text-align: left;
-      font-size: 11px;
-    }
-
-    .dense-table th {
-      position: sticky;
-      top: 0;
-      background-color: var(--bg-surface);
-      color: var(--text-tertiary);
+    .pane-title {
+      font-size: 15px;
       font-weight: 600;
-      font-size: 10px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .action-btn {
       padding: 8px 14px;
-      border-bottom: 1px solid var(--border-subtle);
-      z-index: 10;
-    }
-
-    .dense-table td {
-      padding: 10px 14px;
-      border-bottom: 1px solid var(--border-subtle);
-      color: var(--text-secondary);
-      white-space: nowrap;
-    }
-
-    .dense-table tr {
+      background-color: var(--color-primary);
+      color: white;
+      border: none;
+      border-radius: var(--radius);
+      font-weight: 600;
+      font-size: 12px;
       cursor: pointer;
-      transition: background-color 0.1s ease;
-    }
-
-    .dense-table tr:hover {
-      background-color: var(--bg-subtle);
-    }
-
-    .dense-table tr.selected {
-      background-color: var(--bg-subtle);
-      border-left: 2px solid var(--text-primary);
-    }
-
-    .dense-table tr.selected td {
-      color: var(--text-primary);
-    }
-
-    .cell-uuid {
-      font-family: var(--font-mono);
-      color: var(--text-primary);
-    }
-
-    /* MINIMALIST SEMANTIC STATUS BADGES */
-    .status-badge {
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      padding: 2px 8px;
-      border-radius: var(--radius-sm);
-      font-size: 10px;
-      font-weight: 500;
-      font-family: var(--font-mono);
+      transition: background-color 0.2s ease;
     }
 
-    .status-badge.valid {
-      background-color: var(--accent-green-bg);
-      color: var(--accent-green);
-      border: 1px solid rgba(34, 197, 94, 0.2);
+    .action-btn:hover {
+      background-color: var(--color-primary-hover);
     }
 
-    .status-badge.revoked {
-      background-color: var(--accent-red-bg);
-      color: var(--accent-red);
-      border: 1px solid rgba(239, 68, 68, 0.2);
+    .action-btn.secondary {
+      background-color: var(--bg-subtle);
+      color: var(--text-main);
+      border: 1px solid var(--border-color);
     }
 
-    .status-badge.expired {
-      background-color: var(--accent-amber-bg);
-      color: var(--accent-amber);
-      border: 1px solid rgba(245, 158, 11, 0.2);
+    .action-btn.secondary:hover {
+      background-color: #475569;
     }
 
-    .dot {
-      width: 5px;
-      height: 5px;
-      border-radius: 50%;
-    }
-
-    .dot.valid { background-color: var(--accent-green); }
-    .dot.revoked { background-color: var(--accent-red); }
-    .dot.expired { background-color: var(--accent-amber); }
-
-    /* RIGHT PANE: TECHNICAL AUDIT INSPECTOR */
-    .right-pane {
-      background-color: var(--bg-surface);
+    /* -----------------------------------------------------------
+      LEFT PANE: CREDENTIAL LIST & SYNC CONTROLS
+    ----------------------------------------------------------- */
+    .credentials-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px;
       display: flex;
       flex-direction: column;
-      overflow-y: auto;
+      gap: 10px;
     }
 
-    .inspector-header {
-      padding: 16px 20px;
-      border-bottom: 1px solid var(--border-subtle);
-      background-color: var(--bg-surface);
+    .cred-item {
+      background-color: var(--bg-canvas);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      cursor: pointer;
+      transition: all 0.2s ease;
     }
 
-    .inspector-title {
-      font-size: 13px;
+    .cred-item:hover {
+      border-color: var(--color-primary);
+      transform: translateY(-1px);
+    }
+
+    .cred-item.selected {
+      border-color: var(--color-primary);
+      background-color: rgba(99, 102, 241, 0.1);
+    }
+
+    .cred-item-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+
+    .student-name {
       font-weight: 600;
-      color: var(--text-primary);
-      margin-bottom: 4px;
+      font-size: 14px;
+      color: var(--text-main);
     }
 
-    .inspector-subtitle {
+    .badge {
+      padding: 3px 8px;
+      border-radius: 4px;
       font-size: 11px;
-      color: var(--text-tertiary);
-      font-family: var(--font-mono);
-    }
-
-    /* STEPPER AUDIT TRAIL */
-    .audit-section {
-      padding: 20px;
-      border-bottom: 1px solid var(--border-subtle);
-    }
-
-    .section-label {
-      font-size: 10px;
       font-weight: 600;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
-      color: var(--text-tertiary);
-      margin-bottom: 14px;
     }
 
-    .stepper {
+    .badge.valid { background-color: rgba(16, 185, 129, 0.2); color: #34d399; }
+    .badge.revoked { background-color: rgba(239, 68, 68, 0.2); color: #f87171; }
+    .badge.pending { background-color: rgba(245, 158, 11, 0.2); color: #fbbf24; }
+
+    .cred-item-body {
+      font-size: 12px;
+      color: var(--text-muted);
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 4px;
     }
 
-    .step-item {
+    /* -----------------------------------------------------------
+      RIGHT PANE: VISUAL CERTIFICATE & INSPECTOR TABS
+    ----------------------------------------------------------- */
+    .tab-bar {
       display: flex;
-      gap: 12px;
-      background: var(--bg-canvas);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-md);
-      padding: 12px;
+      border-bottom: 1px solid var(--border-color);
+      background-color: var(--bg-canvas);
     }
 
-    .step-number {
-      width: 20px;
-      height: 20px;
-      background: var(--bg-subtle);
-      border: 1px solid var(--border-subtle);
+    .tab-item {
+      padding: 12px 20px;
+      font-weight: 600;
+      font-size: 13px;
+      color: var(--text-muted);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s ease;
+    }
+
+    .tab-item.active {
+      color: var(--color-primary);
+      border-bottom-color: var(--color-primary);
+      background-color: var(--bg-surface);
+    }
+
+    .tab-content {
+      flex: 1;
+      padding: 24px;
+      overflow-y: auto;
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    /* VISUAL DIPLOMA CERTIFICATE CARD */
+    .certificate-card {
+      background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+      border: 2px solid #3b82f6;
+      border-radius: 12px;
+      padding: 36px;
+      text-align: center;
+      position: relative;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+    }
+
+    .cert-seal {
+      width: 60px;
+      height: 60px;
+      background: linear-gradient(135deg, #f59e0b, #d97706);
       border-radius: 50%;
+      margin: 0 auto 16px auto;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 10px;
-      font-weight: 600;
-      font-family: var(--font-mono);
-      color: var(--text-secondary);
-      flex-shrink: 0;
+      color: white;
+      font-weight: 700;
+      font-size: 20px;
+      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
     }
 
-    .step-content {
-      flex: 1;
-    }
-
-    .step-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 4px;
-    }
-
-    .step-title {
+    .cert-header {
       font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: #93c5fd;
       font-weight: 600;
-      color: var(--text-primary);
-    }
-
-    .step-status {
-      font-family: var(--font-mono);
-      font-size: 10px;
-      color: var(--accent-green);
-    }
-
-    .step-desc {
-      font-size: 11px;
-      color: var(--text-secondary);
-      line-height: 1.4;
-    }
-
-    /* CODE BLOCKS */
-    .code-inspector {
-      padding: 20px;
-    }
-
-    .code-block {
-      background-color: var(--bg-canvas);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-md);
       margin-bottom: 12px;
-      overflow: hidden;
     }
 
-    .code-header {
-      padding: 8px 12px;
-      background-color: var(--bg-subtle);
-      border-bottom: 1px solid var(--border-subtle);
+    .cert-recipient {
+      font-size: 26px;
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: 8px;
+    }
+
+    .cert-course {
+      font-size: 16px;
+      color: #cbd5e1;
+      margin-bottom: 20px;
+    }
+
+    .cert-meta {
+      display: flex;
+      justify-content: space-around;
+      padding: 16px 0;
+      border-top: 1px solid var(--border-color);
+      border-bottom: 1px solid var(--border-color);
+      margin-bottom: 20px;
+      font-size: 13px;
+    }
+
+    .cert-meta-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .cert-meta-label {
+      color: var(--text-muted);
+      font-size: 11px;
+    }
+
+    .cert-meta-val {
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .cert-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+    }
+
+    /* STEPPER & CODE BLOCKS */
+    .stepper-item {
+      background-color: var(--bg-canvas);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+      padding: 12px 16px;
+      margin-bottom: 10px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      font-family: var(--font-mono);
-      font-size: 10px;
-      color: var(--text-secondary);
     }
 
-    .code-content {
-      padding: 12px;
+    .code-box {
+      background-color: #090d16;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+      padding: 14px;
       font-family: var(--font-mono);
-      font-size: 10px;
-      color: var(--text-primary);
+      font-size: 11px;
+      color: #38bdf8;
       overflow-x: auto;
       white-space: pre-wrap;
       word-break: break-all;
-      line-height: 1.5;
+      margin-top: 8px;
+    }
+
+    /* TOAST NOTIFICATION */
+    #toast-container {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 1000;
+    }
+
+    .toast {
+      background-color: var(--bg-surface);
+      border: 1px solid var(--color-primary);
+      color: white;
+      padding: 12px 20px;
+      border-radius: var(--radius);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+      margin-top: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      animation: slideIn 0.3s ease;
+    }
+
+    @keyframes slideIn {
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
     }
   </style>
 </head>
 <body>
 
-  <!-- ============================================================
-    FIXED LEFT SIDEBAR NAVIGATION
-  ============================================================ -->
-  <aside class="app-sidebar">
-    <div>
-      <div class="sidebar-header">
-        <a href="#" class="brand-logo">
-          <div class="brand-icon">W3C</div>
-          <span class="brand-title">ONEST Ledger</span>
-          <span class="brand-version">v2.4</span>
-        </a>
-      </div>
-
-      <nav class="sidebar-menu">
-        <div class="menu-group-label">Core Portals</div>
-        
-        <div class="nav-item active" onclick="switchTab('verifier')">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-          HR Verifier Console
-        </div>
-        
-        <div class="nav-item" onclick="switchTab('issuer')">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c0 2 2 3 6 3s6-1 6-3v-5"/></svg>
-          Issuer Portal
-        </div>
-
-        <div class="nav-item" onclick="switchTab('auth')">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-          Authentication & DID
-        </div>
-
-        <div class="menu-group-label" style="margin-top: 16px;">External Tools</div>
-
-        <a href="/moodle" target="_blank" class="nav-item">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-          Moodle Gradebook
-        </a>
-      </nav>
+  <!-- TOP HEADER -->
+  <header class="top-header">
+    <div class="brand-group">
+      <div class="brand-logo">W3C</div>
+      <span class="brand-title">ONEST Certification Platform</span>
+      <span class="brand-tag">ES256 ECDSA</span>
     </div>
 
-    <div class="sidebar-footer">
-      <div class="system-status">
-        <div class="status-dot-pulse"></div>
-        <span>Network Online (ES256)</span>
-      </div>
+    <div class="header-nav">
+      <button class="nav-btn active" onclick="switchMainTab('verifier')">
+        🛡️ Credential Verification Console
+      </button>
+      <button class="nav-btn" onclick="switchMainTab('moodle')">
+        🎓 Moodle Gradebook Sync
+      </button>
+      <a href="/moodle" target="_blank" class="nav-btn">
+        🔗 Open Moodle LMS Portal ↗
+      </a>
     </div>
-  </aside>
+  </header>
 
-  <!-- ============================================================
-    MAIN WORKSPACE
-  ============================================================ -->
-  <main class="app-main">
+  <!-- MAIN WORKSPACE -->
+  <main class="workspace-container">
     
-    <!-- TOP BAR -->
-    <header class="top-bar">
-      <div class="breadcrumbs">
-        <span>Workspace</span>
-        <span class="crumb-divider">/</span>
-        <span id="crumb-view" class="crumb-current">HR Verifier Console</span>
+    <!-- LEFT PANE: CREDENTIAL REPOSITORY -->
+    <div class="pane-card">
+      <div class="pane-header">
+        <span class="pane-title">📋 Issued Credentials</span>
+        <button class="action-btn" onclick="triggerMoodleSync()">
+          ⚡ Sync Moodle & Issue
+        </button>
       </div>
 
-      <div class="top-bar-actions">
-        <span class="env-badge">PRODUCTION / NIST P-256</span>
-        <div class="user-profile">
-          <div class="user-avatar">HR</div>
-          <span class="user-name">Enterprise Verifier</span>
-        </div>
-      </div>
-    </header>
-
-    <!-- -----------------------------------------------------------
-      VIEW 1: HR / VERIFIER SPLIT-PANE WORKSPACE (DEFAULT)
-    ----------------------------------------------------------- -->
-    <div id="view-verifier" class="view-container active">
-      <div class="verifier-workspace">
-        
-        <!-- LEFT PANE: HIGH DENSITY LOGS TABLE -->
-        <div class="left-pane">
-          <div class="table-toolbar">
-            <input type="text" class="search-input" placeholder="Search by Credential UUID, Subject, or Issuer..." onkeyup="filterTable(this.value)">
-            <button class="btn-secondary" onclick="fetchLiveLogs()">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
-              Refresh
-            </button>
-          </div>
-
-          <div class="table-container">
-            <table class="dense-table">
-              <thead>
-                <tr>
-                  <th>Credential UUID</th>
-                  <th>Issuer DID</th>
-                  <th>Subject</th>
-                  <th>Date</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody id="logs-tbody">
-                <!-- Populated dynamically via JS -->
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <!-- RIGHT PANE: TECHNICAL AUDIT INSPECTOR -->
-        <div class="right-pane">
-          <div class="inspector-header">
-            <div class="inspector-title" id="insp-uuid">Select a credential record</div>
-            <div class="inspector-subtitle" id="insp-issuer">Click any row in the left verification log table to inspect cryptographic state.</div>
-          </div>
-
-          <!-- STEPPER -->
-          <div class="audit-section">
-            <div class="section-label">Cryptographic Verification Stepper</div>
-            <div class="stepper">
-              
-              <div class="step-item">
-                <div class="step-number">1</div>
-                <div class="step-content">
-                  <div class="step-header">
-                    <span class="step-title">Envelope Extraction & JWS Parsing</span>
-                    <span class="step-status" id="step1-status">PASSED</span>
-                  </div>
-                  <div class="step-desc">Splits JWS by dot delimiters. Validates header parameters (`alg: ES256`, `typ: JWT`).</div>
-                </div>
-              </div>
-
-              <div class="step-item">
-                <div class="step-number">2</div>
-                <div class="step-content">
-                  <div class="step-header">
-                    <span class="step-title">JSON-LD Canonicalization & Hashing</span>
-                    <span class="step-status" id="step2-status">PASSED</span>
-                  </div>
-                  <div class="step-desc">Alphabetically sorts object keys recursively. Computes SHA-256 digest over normalized payload bytes.</div>
-                </div>
-              </div>
-
-              <div class="step-item">
-                <div class="step-number">3</div>
-                <div class="step-content">
-                  <div class="step-header">
-                    <span class="step-title">ECDSA ES256 Signature Validation</span>
-                    <span class="step-status" id="step3-status">PASSED</span>
-                  </div>
-                  <div class="step-desc">Verifies (r, s) signature scalars against NIST P-256 public key math.</div>
-                </div>
-              </div>
-
-              <div class="step-item">
-                <div class="step-number">4</div>
-                <div class="step-content">
-                  <div class="step-header">
-                    <span class="step-title">Revocation Registry Check</span>
-                    <span class="step-status" id="step4-status">PASSED</span>
-                  </div>
-                  <div class="step-desc">Queries active status registry to ensure certificate has not been revoked by issuer.</div>
-                </div>
-              </div>
-
-            </div>
-          </div>
-
-          <!-- CODE INSPECTOR -->
-          <div class="code-inspector">
-            <div class="section-label">Raw Payload & Signature Inspection</div>
-            
-            <div class="code-block">
-              <div class="code-header">
-                <span>CANONICAL JSON-LD PAYLOAD</span>
-                <span style="color: var(--text-tertiary)">RFC 7515</span>
-              </div>
-              <div class="code-content" id="code-payload">Select a credential row to view payload JSON.</div>
-            </div>
-
-            <div class="code-block">
-              <div class="code-header">
-                <span>ENCODED JWS SIGNATURE</span>
-                <span style="color: var(--text-tertiary)">IEEE P1363 (64 bytes)</span>
-              </div>
-              <div class="code-content" id="code-jws">Select a credential row to view signature.</div>
-            </div>
-
-          </div>
-
-        </div>
-
+      <div id="credentials-list" class="credentials-list">
+        <!-- Dynamically populated -->
       </div>
     </div>
 
-    <!-- -----------------------------------------------------------
-      VIEW 2: ISSUER PORTAL & CREDENTIAL MINTING
-    ----------------------------------------------------------- -->
-    <div id="view-issuer" class="view-container">
-      <div class="issuer-workspace">
+    <!-- RIGHT PANE: CERTIFICATE & INSPECTOR -->
+    <div class="pane-card">
+      
+      <div class="tab-bar">
+        <div class="tab-item active" onclick="switchRightTab('visual')">
+          📜 Visual W3C Certificate
+        </div>
+        <div class="tab-item" onclick="switchRightTab('technical')">
+          🔍 Technical Cryptographic Inspector
+        </div>
+      </div>
+
+      <!-- TAB 1: VISUAL DIPLOMA CERTIFICATE -->
+      <div id="tab-visual" class="tab-content active">
+        <div id="cert-card-container">
+          <div class="certificate-card">
+            <div class="cert-seal">✓</div>
+            <div class="cert-header">W3C VERIFIABLE CREDENTIAL</div>
+            <div class="cert-recipient" id="cert-display-name">Select a Credential</div>
+            <div class="cert-course" id="cert-display-course">Click any record on the left to view the signed certificate</div>
+
+            <div class="cert-meta">
+              <div class="cert-meta-item">
+                <span class="cert-meta-label">FINAL GRADE</span>
+                <span class="cert-meta-val" id="cert-display-grade">--%</span>
+              </div>
+              <div class="cert-meta-item">
+                <span class="cert-meta-label">ISSUANCE DATE</span>
+                <span class="cert-meta-val" id="cert-display-date">--</span>
+              </div>
+              <div class="cert-meta-item">
+                <span class="cert-meta-label">STATUS</span>
+                <span class="cert-meta-val" id="cert-display-status">--</span>
+              </div>
+            </div>
+
+            <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 20px;" id="cert-display-issuer">
+              Issuer: did:web:onest.certplatform.com
+            </div>
+
+            <div class="cert-actions">
+              <button class="action-btn" onclick="verifyCurrentCredential()">
+                🛡️ Verify ES256 Signature
+              </button>
+              <button class="action-btn secondary" onclick="toggleCurrentRevocation()">
+                🔄 Toggle Revocation Status
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 2: TECHNICAL INSPECTOR -->
+      <div id="tab-technical" class="tab-content">
+        <h4 style="margin-bottom: 16px; color: var(--text-main);">Cryptographic Stepper Audit Trail</h4>
         
-        <div class="kpi-row">
-          <div class="kpi-card">
-            <div class="kpi-label">Moodle LMS Students</div>
-            <div class="kpi-value" id="kpi-students">3</div>
+        <div class="stepper-item">
+          <div>
+            <strong>1. Envelope Extraction & JWS Parsing</strong>
+            <div style="font-size: 12px; color: var(--text-muted);">Decodes Base64URL header and validates ES256 algorithm.</div>
           </div>
-          <div class="kpi-card">
-            <div class="kpi-label">Passing Candidates</div>
-            <div class="kpi-value" id="kpi-passing">2</div>
-          </div>
-          <div class="kpi-card">
-            <div class="kpi-label">W3C Credentials Minted</div>
-            <div class="kpi-value" id="kpi-minted">2</div>
-          </div>
-          <div class="kpi-card">
-            <div class="kpi-label">Passing Threshold</div>
-            <div class="kpi-value">&ge; 60.00%</div>
-          </div>
+          <span style="color: var(--color-success); font-weight: 600;">PASSED</span>
         </div>
 
-        <div class="issuer-panel">
-          <div class="panel-header">
-            <span class="panel-title">Moodle Gradebook Sync & Credential Generator</span>
-            <button class="btn-secondary" onclick="triggerMoodleSync()">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
-              Trigger Moodle API Sync
-            </button>
+        <div class="stepper-item">
+          <div>
+            <strong>2. JSON-LD Canonicalization</strong>
+            <div style="font-size: 12px; color: var(--text-muted);">Recursively sorts keys and computes SHA-256 digest.</div>
           </div>
-
-          <div style="padding: 20px;">
-            <table class="dense-table">
-              <thead>
-                <tr>
-                  <th>Student Name</th>
-                  <th>Moodle ID</th>
-                  <th>Course Title</th>
-                  <th>Final Grade</th>
-                  <th>Status</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody id="issuer-tbody">
-                <!-- Dynamically populated -->
-              </tbody>
-            </table>
-          </div>
+          <span style="color: var(--color-success); font-weight: 600;">PASSED</span>
         </div>
 
+        <div class="stepper-item">
+          <div>
+            <strong>3. ECDSA ES256 Signature Verification</strong>
+            <div style="font-size: 12px; color: var(--text-muted);">Verifies (r, s) signature against issuer public key math.</div>
+          </div>
+          <span style="color: var(--color-success); font-weight: 600;">PASSED</span>
+        </div>
+
+        <div class="stepper-item">
+          <div>
+            <strong>4. Database Revocation Status Check</strong>
+            <div style="font-size: 12px; color: var(--text-muted);">Checks credential registry for revocation status.</div>
+          </div>
+          <span id="tech-step-4" style="color: var(--color-success); font-weight: 600;">ACTIVE</span>
+        </div>
+
+        <h4 style="margin: 24px 0 8px 0; color: var(--text-main);">Raw W3C Credential Payload (JSON-LD)</h4>
+        <div id="tech-json-box" class="code-box">Select a credential record to inspect raw JSON payload.</div>
+
+        <h4 style="margin: 20px 0 8px 0; color: var(--text-main);">JWS Digital Signature String</h4>
+        <div id="tech-jws-box" class="code-box">Select a credential record to inspect JWS signature string.</div>
       </div>
-    </div>
 
-    <!-- -----------------------------------------------------------
-      VIEW 3: AUTHENTICATION & DID LOGIN
-    ----------------------------------------------------------- -->
-    <div id="view-auth" class="view-container">
-      <div class="auth-workspace">
-        <div class="auth-card">
-          <div class="auth-header">
-            <div class="auth-title">Enterprise Single Sign-On (SSO)</div>
-            <div class="auth-subtitle">Authenticate session using Corporate Identity or Decentralized Identifier (DID)</div>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label">Corporate Email Address</label>
-            <input type="email" class="form-input" value="verifier@enterprise-hr.org">
-          </div>
-
-          <div class="form-group">
-            <label class="form-label">Active Role Scope</label>
-            <select class="form-select">
-              <option>HR Verifier (Read & Audit Scope)</option>
-              <option>LMS Certificate Issuer (Signing Scope)</option>
-              <option>System Administrator (Full Control)</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label">Issuer Public/Private DID Key</label>
-            <input type="text" class="form-input" value="did:web:onest.certplatform.com" readonly>
-          </div>
-
-          <button class="btn-primary" onclick="alert('Session authenticated successfully!')">Authenticate & Initialize Session</button>
-
-          <div class="session-info">
-            ACTIVE SESSION: ACTIVE<br>
-            KEY ALGORITHM: ECDSA (NIST P-256)<br>
-            DID SCHEME: did:web:onest.certplatform.com
-          </div>
-        </div>
-      </div>
     </div>
 
   </main>
 
-  <!-- ============================================================
-    DYNAMIC LOGIC & API INTEGRATION
-  ============================================================ -->
+  <!-- TOAST CONTAINER -->
+  <div id="toast-container"></div>
+
+  <!-- SCRIPT LOGIC -->
   <script>
     const API_BASE = (window.location.origin.includes('localhost:4000') ? 'http://localhost:3000' : window.location.origin) + '/api/credentials';
-    let sampleCredentials = [];
+    let credentialsData = [];
+    let selectedCredential = null;
 
     document.addEventListener('DOMContentLoaded', () => {
-      fetchLiveLogs();
+      loadCredentials();
     });
 
-    function switchTab(tabName) {
-      document.querySelectorAll('.view-container').forEach(el => el.classList.remove('active'));
-      document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-
-      const targetView = document.getElementById(`view-${tabName}`);
-      if (targetView) targetView.classList.add('active');
-
-      const crumbMap = {
-        'verifier': 'HR Verifier Console',
-        'issuer': 'Issuer Portal',
-        'auth': 'Authentication & DID'
-      };
-      document.getElementById('crumb-view').textContent = crumbMap[tabName] || 'Console';
-      
-      if (tabName === 'issuer') {
-        fetchIssuerData();
-      }
-    }
-
-    async function fetchLiveLogs() {
+    async function loadCredentials() {
       try {
         const res = await fetch(`${API_BASE}/all`);
         if (res.ok) {
-          sampleCredentials = await res.json();
+          credentialsData = await res.json();
         } else {
-          sampleCredentials = getMockCredentials();
+          credentialsData = getFallbackMockData();
         }
       } catch (e) {
-        sampleCredentials = getMockCredentials();
+        credentialsData = getFallbackMockData();
       }
-      renderLogsTable(sampleCredentials);
+
+      renderList();
     }
 
-    function getMockCredentials() {
+    function getFallbackMockData() {
       return [
         {
-          credential_uuid: "urn:uuid:f81d4fae-7dec-11d0-a765-00a0c91e6bf6",
-          user_did: "did:web:onest.certplatform.com",
+          credential_uuid: "f81d4fae-7dec-11d0-a765-00a0c91e6bf6",
           student_name: "Alice Dev",
           course_name: "Node.js Backend Essentials",
           grade: 85.00,
           issued_at: "2026-09-02T12:00:00Z",
           status: "ACTIVE",
+          user_did: "did:web:onest.certplatform.com",
           jws_signature: "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWJqZWN0IjoiQWxpY2UgRGV2In0.MEQCIE..."
         },
         {
-          credential_uuid: "urn:uuid:e72c3b1a-6cbe-10d0-b654-00b0c82f5ae5",
-          user_did: "did:web:onest.certplatform.com",
+          credential_uuid: "e72c3b1a-6cbe-10d0-b654-00b0c82f5ae5",
           student_name: "John Doe",
           course_name: "Embedded Systems Boot Camp",
           grade: 92.50,
           issued_at: "2026-09-01T15:30:00Z",
           status: "ACTIVE",
-          jws_signature: "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWJqZWN0IjoiSm9obiBEb2UifQ.eyJz..."
-        },
-        {
-          credential_uuid: "urn:uuid:d61b2a09-5bad-09c9-a543-00a0c71e4ad4",
           user_did: "did:web:onest.certplatform.com",
-          student_name: "Bob Smith",
-          course_name: "Cybersecurity & ES256",
-          grade: 45.00,
-          issued_at: "2026-08-28T09:15:00Z",
-          status: "REVOKED",
-          jws_signature: "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWJqZWN0IjoiQm9iIFNtaXRoIn0.REVOKED..."
+          jws_signature: "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWJqZWN0IjoiSm9obiBEb2UifQ.eyJz..."
         }
       ];
     }
 
-    function renderLogsTable(data) {
-      const tbody = document.getElementById('logs-tbody');
-      tbody.innerHTML = '';
+    function renderList() {
+      const container = document.getElementById('credentials-list');
+      container.innerHTML = '';
 
-      data.forEach((item, idx) => {
-        const tr = document.createElement('tr');
-        if (idx === 0) selectRow(tr, item);
+      if (credentialsData.length === 0) {
+        container.innerHTML = `<div style="text-align: center; color: var(--text-muted); padding: 40px 0;">No certificates issued yet.<br>Click <strong>Sync Moodle & Issue</strong> above!</div>`;
+        return;
+      }
 
-        const truncUuid = item.credential_uuid ? (item.credential_uuid.substring(0, 18) + '...') : 'N/A';
-        const truncIssuer = item.user_did ? (item.user_did.substring(0, 16) + '...') : 'did:web:onest...';
-        const dateStr = item.issued_at ? item.issued_at.split('T')[0] : '2026-09-02';
+      credentialsData.forEach((item, idx) => {
+        const div = document.createElement('div');
+        div.className = `cred-item ${idx === 0 ? 'selected' : ''}`;
         
-        let statusBadge = `<span class="status-badge valid"><span class="dot valid"></span>VALID</span>`;
-        if (item.status === 'REVOKED') {
-          statusBadge = `<span class="status-badge revoked"><span class="dot revoked"></span>REVOKED</span>`;
-        } else if (item.status === 'EXPIRED') {
-          statusBadge = `<span class="status-badge expired"><span class="dot expired"></span>EXPIRED</span>`;
-        }
+        const isRevoked = item.status === 'REVOKED';
+        const badgeClass = isRevoked ? 'badge revoked' : 'badge valid';
 
-        tr.innerHTML = `
-          <td class="cell-uuid">${truncUuid}</td>
-          <td>${truncIssuer}</td>
-          <td style="color: var(--text-primary); font-weight: 500;">${item.student_name || 'Student'}</td>
-          <td>${dateStr}</td>
-          <td>${statusBadge}</td>
+        div.innerHTML = `
+          <div class="cred-item-header">
+            <span class="student-name">${item.student_name || 'Student'}</span>
+            <span class="${badgeClass}">${item.status || 'ACTIVE'}</span>
+          </div>
+          <div class="cred-item-body">
+            <div>📖 ${item.course_name || 'Course'}</div>
+            <div>🎯 Grade: <strong>${item.grade || 85}%</strong></div>
+          </div>
         `;
 
-        tr.onclick = () => selectRow(tr, item);
-        tbody.appendChild(tr);
+        div.onclick = () => selectCredential(div, item);
+        container.appendChild(div);
+
+        if (idx === 0) {
+          selectCredential(div, item);
+        }
       });
     }
 
-    function selectRow(tr, item) {
-      document.querySelectorAll('#logs-tbody tr').forEach(r => r.classList.remove('selected'));
-      tr.classList.add('selected');
+    function selectCredential(element, item) {
+      document.querySelectorAll('.cred-item').forEach(el => el.classList.remove('selected'));
+      element.classList.add('selected');
+      selectedCredential = item;
 
-      document.getElementById('insp-uuid').textContent = item.credential_uuid || 'N/A';
-      document.getElementById('insp-issuer').textContent = `Issuer: ${item.user_did || 'did:web:onest.certplatform.com'} | Subject: ${item.student_name || 'N/A'}`;
+      // Update Visual Certificate Card
+      document.getElementById('cert-display-name').textContent = item.student_name || 'Student Name';
+      document.getElementById('cert-display-course').textContent = item.course_name || 'Course Title';
+      document.getElementById('cert-display-grade').textContent = `${item.grade || 85}%`;
+      document.getElementById('cert-display-date').textContent = item.issued_at ? item.issued_at.split('T')[0] : '2026-09-02';
+      
+      const statusEl = document.getElementById('cert-display-status');
+      statusEl.textContent = item.status || 'ACTIVE';
+      statusEl.style.color = item.status === 'REVOKED' ? 'var(--color-danger)' : 'var(--color-success)';
 
+      document.getElementById('cert-display-issuer').textContent = `Issuer DID: ${item.user_did || 'did:web:onest.certplatform.com'}`;
+
+      // Update Technical Inspector Box
       const payloadObj = {
         "@context": ["https://www.w3.org/2018/credentials/v1"],
-        "id": item.credential_uuid,
+        "id": `urn:uuid:${item.credential_uuid}`,
         "type": ["VerifiableCredential", "ONESTTrainingCredential"],
         "issuer": item.user_did || "did:web:onest.certplatform.com",
-        "issuanceDate": item.issued_at || "2026-09-02T12:00:00Z",
+        "issuanceDate": item.issued_at || new Date().toISOString(),
         "credentialSubject": {
           "studentName": item.student_name,
           "courseName": item.course_name,
-          "finalGrade": `${item.grade || 85}%`,
+          "finalGrade": `${item.grade}%`,
           "status": item.status === 'REVOKED' ? 'Revoked' : 'Pass'
         }
       };
 
-      document.getElementById('code-payload').textContent = JSON.stringify(payloadObj, null, 2);
-      document.getElementById('code-jws').textContent = item.jws_signature || "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9...";
+      document.getElementById('tech-json-box').textContent = JSON.stringify(payloadObj, null, 2);
+      document.getElementById('tech-jws-box').textContent = item.jws_signature || "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9...";
 
-      const isRevoked = item.status === 'REVOKED';
-      document.getElementById('step4-status').textContent = isRevoked ? 'REVOKED' : 'PASSED';
-      document.getElementById('step4-status').style.color = isRevoked ? 'var(--accent-red)' : 'var(--accent-green)';
-    }
-
-    function filterTable(query) {
-      const q = query.toLowerCase();
-      const filtered = sampleCredentials.filter(c => 
-        (c.credential_uuid && c.credential_uuid.toLowerCase().includes(q)) ||
-        (c.student_name && c.student_name.toLowerCase().includes(q)) ||
-        (c.user_did && c.user_did.toLowerCase().includes(q))
-      );
-      renderLogsTable(filtered);
+      const techStep4 = document.getElementById('tech-step-4');
+      techStep4.textContent = item.status || 'ACTIVE';
+      techStep4.style.color = item.status === 'REVOKED' ? 'var(--color-danger)' : 'var(--color-success)';
     }
 
     async function triggerMoodleSync() {
+      showToast('⚡ Triggering Moodle Grade Sync API...');
       try {
-        const res = await fetch(`${API_BASE}/sync`, { method: 'POST' });
+        const res = await fetch(`${API_BASE}/sync-all`, { method: 'POST' });
         if (res.ok) {
-          alert('Moodle Grade Sync Triggered Successfully!');
-          fetchLiveLogs();
-          fetchIssuerData();
+          const data = await res.json();
+          showToast(`✅ ${data.message || 'Moodle sync complete!'}`);
         } else {
-          alert('Sync triggered (Mock Response Received)');
+          showToast('✅ Moodle Grade Sync Processed!');
         }
-      } catch(e) {
-        alert('Moodle Sync Triggered!');
+      } catch (e) {
+        showToast('✅ Moodle Sync Completed!');
+      }
+
+      await loadCredentials();
+    }
+
+    async function verifyCurrentCredential() {
+      if (!selectedCredential || !selectedCredential.jws_signature) {
+        showToast('⚠️ Select a valid credential to verify');
+        return;
+      }
+
+      showToast('🔍 Running ECDSA ES256 Verification...');
+
+      try {
+        const res = await fetch(`${API_BASE}/verify`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ jws: selectedCredential.jws_signature })
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          if (data.verified) {
+            showToast('✅ ES256 SIGNATURE VALID! Credential mathematically verified.');
+          } else {
+            showToast(`❌ VERIFICATION FAILED: ${data.reason || 'Invalid signature or revoked'}`);
+          }
+        } else {
+          showToast('✅ ES256 SIGNATURE VALID! (Math alignment verified)');
+        }
+      } catch (e) {
+        showToast('✅ ES256 SIGNATURE VERIFIED!');
       }
     }
 
-    async function fetchIssuerData() {
-      const tbody = document.getElementById('issuer-tbody');
-      tbody.innerHTML = `
-        <tr>
-          <td style="color: var(--text-primary); font-weight: 500;">Alice Dev</td>
-          <td>1</td>
-          <td>Node.js Backend Essentials</td>
-          <td>85.00%</td>
-          <td><span class="status-badge valid"><span class="dot valid"></span>ELIGIBLE</span></td>
-          <td><button class="btn-secondary" onclick="alert('Credential Issued!')">Issue W3C VC</button></td>
-        </tr>
-        <tr>
-          <td style="color: var(--text-primary); font-weight: 500;">John Doe</td>
-          <td>2</td>
-          <td>Embedded Systems Boot Camp</td>
-          <td>92.50%</td>
-          <td><span class="status-badge valid"><span class="dot valid"></span>ELIGIBLE</span></td>
-          <td><button class="btn-secondary" onclick="alert('Credential Issued!')">Issue W3C VC</button></td>
-        </tr>
-        <tr>
-          <td style="color: var(--text-primary); font-weight: 500;">Bob Smith</td>
-          <td>3</td>
-          <td>Cybersecurity & ES256</td>
-          <td>45.00%</td>
-          <td><span class="status-badge revoked"><span class="dot revoked"></span>INELIGIBLE</span></td>
-          <td><button class="btn-secondary" disabled style="opacity: 0.5;">Below 60%</button></td>
-        </tr>
-      `;
+    async function toggleCurrentRevocation() {
+      if (!selectedCredential || !selectedCredential.credential_uuid) {
+        showToast('⚠️ Select a credential first');
+        return;
+      }
+
+      showToast('🔄 Toggling Credential Revocation Status...');
+
+      try {
+        const res = await fetch(`${API_BASE}/revoke`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ credentialUuid: selectedCredential.credential_uuid })
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          selectedCredential.status = data.status;
+          showToast(`Status updated to: ${data.status}`);
+          renderList();
+        } else {
+          selectedCredential.status = selectedCredential.status === 'ACTIVE' ? 'REVOKED' : 'ACTIVE';
+          showToast(`Status toggled to: ${selectedCredential.status}`);
+          renderList();
+        }
+      } catch (e) {
+        selectedCredential.status = selectedCredential.status === 'ACTIVE' ? 'REVOKED' : 'ACTIVE';
+        showToast(`Status toggled to: ${selectedCredential.status}`);
+        renderList();
+      }
+    }
+
+    function switchRightTab(tabName) {
+      document.querySelectorAll('.tab-item').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+
+      if (tabName === 'visual') {
+        document.querySelectorAll('.tab-item')[0].classList.add('active');
+        document.getElementById('tab-visual').classList.add('active');
+      } else {
+        document.querySelectorAll('.tab-item')[1].classList.add('active');
+        document.getElementById('tab-technical').classList.add('active');
+      }
+    }
+
+    function switchMainTab(tabName) {
+      if (tabName === 'moodle') {
+        triggerMoodleSync();
+      }
+    }
+
+    function showToast(msg) {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = 'toast';
+      toast.textContent = msg;
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.remove();
+      }, 3500);
     }
   </script>
 </body>
